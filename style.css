@@ -1,0 +1,9 @@
+/* Custom scrollbar handling to match Netflix's seamless horizontal sliding design */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.no-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}

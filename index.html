@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cinematrix Kingle</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-[#141414] text-white font-sans antialiased selection:bg-red-600 selection:text-white">
+
+    <nav id="navbar" class="fixed top-0 w-full z-50 flex items-center justify-between px-4 md:px-12 py-4 bg-gradient-to-b from-black/80 to-transparent transition-colors duration-500">
+        <div class="flex items-center space-x-6">
+            <h1 class="text-red-600 text-2xl md:text-3xl font-extrabold tracking-wider cursor-pointer">CINEMATRIX</h1>
+            <ul class="hidden md:flex space-x-4 text-sm font-medium text-gray-300">
+                <li class="hover:text-white transition cursor-pointer">Home</li>
+                <li class="hover:text-white transition cursor-pointer">TV Shows</li>
+                <li class="hover:text-white transition cursor-pointer">Movies</li>
+                <li class="hover:text-white transition cursor-pointer">New & Popular</li>
+                <li class="hover:text-white transition cursor-pointer">My List</li>
+            </ul>
+        </div>
+        <div class="flex items-center space-x-4">
+            <button class="text-gray-300 hover:text-white transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+            </button>
+            <div class="w-8 h-8 rounded bg-blue-600 cursor-pointer border border-gray-700"></div>
+        </div>
+    </nav>
+
+    <header id="hero-banner" class="relative h-[70vh] md:h-[85vh] bg-cover bg-center flex items-center px-4 md:px-12 transition-all duration-700">
+        <div class="max-w-xl z-10 space-y-4">
+            <h2 id="hero-title" class="text-3xl md:text-6xl font-extrabold tracking-tight drop-shadow-md">Loading Spotlight...</h2>
+            <p id="hero-desc" class="text-sm md:text-lg text-gray-200 drop-shadow line-clamp-3 md:line-clamp-4">Fetching the latest high-octane cinematic selections directly onto your dashboard...</p>
+            <div class="flex space-x-3 pt-2">
+                <button class="flex items-center justify-center px-5 py-2 bg-white text-black font-bold rounded hover:bg-white/80 transition shadow-md md:px-8 md:py-2.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 fill-current" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" /></svg>
+                    Play
+                </button>
+                <button class="flex items-center justify-center px-5 py-2 bg-zinc-600/70 text-white font-bold rounded hover:bg-zinc-600/50 transition backdrop-blur-md md:px-8 md:py-2.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    More Info
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="pb-24 space-y-8 relative z-20 -mt-16 md:-mt-24 px-4 md:px-12">
+        
+        <section class="space-y-3">
+            <h3 class="text-sm md:text-xl font-bold tracking-wide text-gray-200">Trending Now</h3>
+            <div id="trending-row" class="flex space-x-4 overflow-x-scroll no-scrollbar py-2 px-1">
+                </div>
+        </section>
+
+        <section class="space-y-3">
+            <h3 class="text-sm md:text-xl font-bold tracking-wide text-gray-200">Top Rated Blockbusters</h3>
+            <div id="blockbuster-row" class="flex space-x-4 overflow-x-scroll no-scrollbar py-2 px-1">
+                </div>
+        </section>
+
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
