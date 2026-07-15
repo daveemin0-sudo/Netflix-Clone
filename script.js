@@ -1,4 +1,14 @@
 // Configuration Settings
+const option2 = {
+method: 'GET',
+hearders: {
+    accept: 'application/json',
+    Authorization: 
+    'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJkNTFhYmRmYzAyZmMxYzU3MWIwZDhiN2MxZTA0OTVhOCIsIm5iZiI6MTc4MzkzMDgxNy40LCJzdWIiOiI2YTU0OWZjMWZjNjc3M2QwYTAyNTcwMmUiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.fZ06W9ayde9hmhSl4aj44zN4EMKqXCUajocjr-rV0nA,'
+    }
+};
+
+
 const TMDB_API_KEY = 'd51abdfc02fc1c571b0d8b7c1e0495a8'; 
 const BASE_URL = 'https://api.themoviedb.org/3';
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p';
@@ -30,7 +40,7 @@ window.addEventListener('scroll', () => {
 // Generates structural template rows for movie slides
 function createMovieCard(movie) {
     const cardImg = movie.isBackup 
-        ? `https://images.unsplash.com${movie.backdrop_path}?q=80&w=500`
+        ?  `https://images.unsplash.com${movie.backdrop_path}?q=80&w=500`            // Fallback image
         : (movie.backdrop_path ? `${IMAGE_BASE_URL}/w500${movie.backdrop_path}` : 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=500');
 
     const releaseYear = movie.release_date ? movie.release_date.split('-')[0] : '2026';
@@ -51,6 +61,7 @@ function createMovieCard(movie) {
 }
 
 // Controls the main large Spotlight Hero section banner image and description
+
 function setupHero(movie) {
     const heroBanner = document.getElementById('hero-banner');
     document.getElementById('hero-title').innerText = movie.title || movie.name;
@@ -63,57 +74,59 @@ function setupHero(movie) {
     heroBanner.style.backgroundImage = `linear-gradient(to top, #141414, transparent 50%), linear-gradient(to right, rgba(0,0,0,0.8), transparent 60%), url('${bgImage}')`;
 }
 
-// Injects data mapping onto target row arrays
-function displayContent(showsList) {
-    setupHero(showsList[0]);
-
-    const laneOneContent = showsList.slice(0, 10);
-    const laneTwoContent = showsList.slice(10, 20); 
-
-    document.getElementById('trending-row').innerHTML = laneOneContent.map(movie => createMovieCard(movie)).join('');
-    if (laneTwoContent.length > 0) {
-        document.getElementById('blockbuster-row').innerHTML = laneTwoContent.map(movie => createMovieCard(movie)).join('');
-    } else {
-        // Fallback duplication offset array if lane two database responses are narrow
-        document.getElementById('blockbuster-row').innerHTML = laneOneContent.reverse().map(movie => createMovieCard(movie)).join('');
-    }
-}
-
-// Fetches live data from TMDB endpoints
+// Fetches live data from TMDB endpoints for all 5 rows
 async function loadContentFromTMDB() {
-    const trendingUrl = `${BASE_URL}/trending/all/week?api_key=${TMDB_API_KEY}`;
-    const topRatedUrl = `${BASE_URL}/movie/top_rated?api_key=${TMDB_API_KEY}`;
+    const urls = {
+        trending: `${BASE_URL}/trending/all/week?api_key=${TMDB_API_KEY}`,
+        topRated: `${BASE_URL}/movie/top_rated?api_key=${TMDB_API_KEY}`,
+        popular: `${BASE_URL}/movie/popular?api_key=${TMDB_API_KEY}`,
+        upcoming: `${BASE_URL}/movie/upcoming?api_key=${TMDB_API_KEY}`,
+        action: `${BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&with_genres=28` // Genre 28 is Action
+    };
 
     try {
-        const [trendingResponse, topRatedResponse] = await Promise.all([
-            fetch(trendingUrl),
-            fetch(topRatedUrl)
+        // Fetch all endpoints parallelly
+        const [trendingRes, topRatedRes, popularRes, upcomingRes, actionRes] = await Promise.all([
+            fetch(urls.trending),
+            fetch(urls.topRated),
+            fetch(urls.popular),
+            fetch(urls.upcoming),
+            fetch(urls.action)
         ]);
 
-        if (!trendingResponse.ok || !topRatedResponse.ok) {
-            throw new Error("Invalid response status or wrong key configurations.");
+        if (!trendingRes.ok || !topRatedRes.ok || !popularRes.ok || !upcomingRes.ok || !actionRes.ok) {
+            throw new Error("One or more requests failed. Verify your API key.");
         }
 
-        const trendingData = await trendingResponse.json();
-        const topRatedData = await topRatedResponse.json();
+        const trendingData = await trendingRes.json();
+        const topRatedData = await topRatedRes.json();
+        const popularData = await popularRes.json();
+        const upcomingData = await upcomingRes.json();
+        const actionData = await actionRes.json();
 
-        const trendingMovies = trendingData.results || [];
-        const topRatedMovies = topRatedData.results || [];
+        // 1. Setup Hero Banner using the absolute top trending movie of the week
+        if (trendingData.results && trendingData.results.length > 0) {
+            setupHero(trendingData.results[0]);
+        }
 
-        if (trendingMovies.length > 0) {
-            setupHero(trendingMovies[0]);
-            document.getElementById('trending-row').innerHTML = trendingMovies.slice(0, 12).map(movie => createMovieCard(movie)).join('');
-        }
-        
-        if (topRatedMovies.length > 0) {
-            document.getElementById('blockbuster-row').innerHTML = topRatedMovies.slice(0, 12).map(movie => createMovieCard(movie)).join('');
-        }
+        // 2. Populate rows (limited to 12 titles each to keep horizontal scroll snappy)
+        document.getElementById('trending-row').innerHTML = (trendingData.results || []).slice(0, 12).map(m => createMovieCard(m)).join('');
+        document.getElementById('top-rated-row').innerHTML = (topRatedData.results || []).slice(0, 12).map(m => createMovieCard(m)).join('');
+        document.getElementById('popular-row').innerHTML = (popularData.results || []).slice(0, 12).map(m => createMovieCard(m)).join('');
+        document.getElementById('upcoming-row').innerHTML = (upcomingData.results || []).slice(0, 12).map(m => createMovieCard(m)).join('');
+        document.getElementById('action-row').innerHTML = (actionData.results || []).slice(0, 12).map(m => createMovieCard(m)).join('');
 
     } catch (err) {
         console.warn("API request issue. Running secure visual backup system:", err.message);
         setupHero(BACKUP_SHOWS[0]);
-        document.getElementById('trending-row').innerHTML = BACKUP_SHOWS.map(movie => createMovieCard(movie)).join('');
-        document.getElementById('blockbuster-row').innerHTML = BACKUP_SHOWS.map(movie => createMovieCard(movie)).join('');
+        
+        // Populate all rows with backup card if things break
+        const fallbackHTML = BACKUP_SHOWS.map(m => createMovieCard(m)).join('');
+        document.getElementById('trending-row').innerHTML = fallbackHTML;
+        document.getElementById('top-rated-row').innerHTML = fallbackHTML;
+        document.getElementById('popular-row').innerHTML = fallbackHTML;
+        document.getElementById('upcoming-row').innerHTML = fallbackHTML;
+        document.getElementById('action-row').innerHTML = fallbackHTML;
     }
 }
 
