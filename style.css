@@ -315,3 +315,39 @@ body {
         height: 101px;
     }
 }
+
+.hero-video-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 1; /* Sits securely behind the text content */
+    pointer-events: none; /* Allows clicks to pass through to buttons */
+}
+
+.hero-video-container iframe {
+    width: 100vw;
+    height: 56.25vw; /* 16:9 Aspect Ratio */
+    min-height: 100vh;
+    min-width: 177.77vh; /* Keeps it covering the screen fully */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Dark gradient to mask the video edges softly into the site layout */
+.hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, #141414, transparent 50%), 
+                linear-gradient(to right, rgba(0,0,0,0.85), transparent 60%);
+    z-index: 2;
+}
+
+.hero-content {
+    z-index: 3; /* Forces text and controls above the video layer */
+}

@@ -30,17 +30,21 @@
         </div>
     </nav>
 
-    <!-- Hero Spotlight Banner -->
+   <!-- Hero Spotlight Banner -->
     <header id="hero-banner" class="hero">
+        <!-- New video overlay container -->
+        <div id="hero-video-container" class="hero-video-container"></div>
+
         <div class="hero-content">
             <h2 id="hero-title" class="hero-title">Loading Spotlight...</h2>
             <p id="hero-desc" class="hero-desc">Fetching the latest cinematic selections...</p>
             <div class="hero-buttons">
-                <button class="btn btn-play">
+                <!-- Added id="play-btn" to listen for clicks -->
+                <button id="play-btn" class="btn btn-play">
                     <svg xmlns="http://www.w3.org/2000/svg" class="btn-icon" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
                     </svg>
-                    Play
+                    Play Trailer
                 </button>
                 <button class="btn btn-info">
                     <svg xmlns="http://www.w3.org/2000/svg" class="btn-icon-outline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
