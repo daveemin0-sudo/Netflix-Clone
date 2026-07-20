@@ -21,7 +21,7 @@
             </ul>
         </div>
         <div class="nav-right">
-            <button class="search-btn">
+            <button class="search-btn" title="Search">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
@@ -39,6 +39,7 @@
             <h2 id="hero-title" class="hero-title">Loading Spotlight...</h2>
             <p id="hero-desc" class="hero-desc">Fetching the latest cinematic selections...</p>
             <div class="hero-buttons">
+
                 <!-- Added id="play-btn" to listen for clicks -->
                 <button id="play-btn" class="btn btn-play">
                     <svg xmlns="http://www.w3.org/2000/svg" class="btn-icon" viewBox="0 0 20 20" fill="currentColor">
@@ -46,6 +47,7 @@
                     </svg>
                     Play Trailer
                 </button>
+
                 <button class="btn btn-info">
                     <svg xmlns="http://www.w3.org/2000/svg" class="btn-icon-outline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -82,6 +84,14 @@
         <section class="movie-row">
             <h3 class="row-title">Action Thrillers</h3>
             <div id="action-row" class="row-posters scrollbar-hidden"></div>
+        </section>
+
+        <!-- Dedicated Streaming Providers Row -->
+        <section class="providers-section">
+            <h3 class="row-title">Watch Across Streaming Networks</h3>
+            <div id="providers-flex" class="providers-flex">
+                <!-- Streaming platform logos will render here dynamically -->
+            </div>
         </section>
 
     </main>

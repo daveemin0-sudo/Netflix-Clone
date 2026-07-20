@@ -127,6 +127,7 @@ body {
     margin-bottom: 20px;
     text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
     display: -webkit-box;
+    line-clamp: 3;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
@@ -211,6 +212,7 @@ body {
 }
 .scrollbar-hidden {
     -ms-overflow-style: none;
+    -webkit-scrollbar-width: none;
     scrollbar-width: none;
 }
 
@@ -358,36 +360,51 @@ body {
     display: flex;
     justify-content: flex-start;
 }
-
+/* Thumb Like / Unlike Button */
 .btn-like {
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.15);
     color: var(--text-white);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    padding: 4px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 6px 10px;
     font-size: 0.75rem;
-    font-weight: bold;
-    border-radius: 3px;
+    font-weight: 600;
+    border-radius: 4px;
     cursor: pointer;
     transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
     width: 100%;
-    text-align: center;
 }
 
 .btn-like:hover {
-    background-color: var(--text-white);
-    color: black;
+    background-color: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.6);
 }
 
-/* Visual state changes when liked */
+.thumb-icon {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    transition: transform 0.2s ease;
+}
+
+.btn-like:hover .thumb-icon {
+    transform: scale(1.15);
+}
+
+/* Liked state (Filled Red Thumb) */
 .btn-like.liked {
     background-color: var(--primary-red);
     border-color: var(--primary-red);
     color: var(--text-white);
 }
 
-.btn-like.liked:hover {
-    background-color: #b20710;
-    border-color: #b20710;
+.btn-like.liked .thumb-icon {
+    fill: currentColor; /* Fills in the thumb icon solid */
 }
 
 /* Error message state */
@@ -396,4 +413,87 @@ body {
     font-size: 0.9rem;
     padding: 15px 0;
     font-style: italic;
+}
+
+/* Streaming Provider Badges */
+.provider-list {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.provider-text {
+    font-size: 0.65rem;
+    color: var(--text-gray);
+}
+
+.provider-logo {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    object-fit: cover;
+}
+
+/* Streaming Providers Section */
+.providers-section {
+    margin-top: 40px;
+    margin-bottom: 40px;
+}
+
+.providers-flex {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 15px 0;
+}
+
+/* Streaming Providers Section */
+.providers-section {
+    margin-top: 40px;
+    margin-bottom: 40px;
+}
+
+.providers-flex {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 15px 0;
+}
+
+/* Updated as a clickable link wrapper */
+.provider-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background-color: var(--card-bg);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 10px 18px;
+    border-radius: 8px;
+    text-decoration: none; /* Removes underline */
+    color: var(--text-white);
+    cursor: pointer;
+    transition: transform 0.25s ease, background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.provider-card:hover {
+    transform: translateY(-4px);
+    background-color: #252525;
+    border-color: var(--primary-red); /* Highlights red on hover */
+}
+
+.provider-card img {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    object-fit: cover;
+}
+
+.provider-name {
+    font-size: 0.85rem;
+    font-weight: 600;
 }

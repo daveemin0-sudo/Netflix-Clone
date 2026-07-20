@@ -27,43 +27,42 @@ window.addEventListener('scroll', () => {
     }
 });
 
-// Helper: Fetch array of liked movie IDs from LocalStorage
+// Fetch array of liked movie IDs from LocalStorage
 function getLikedMovies() {
     const saved = localStorage.getItem('cinematrix_liked');
-    return saved ? JSON.parse(saved) : [];
+    return saved ? JSON.parse(saved) : [];  // Default to empty array
 }
 
-// Helper: Save updated array of liked IDs back to LocalStorage
+// Save updated array of liked IDs back to LocalStorage
 function saveLikedMovies(likedArray) {
-    localStorage.setItem('cinematrix_liked', JSON.stringify(likedArray));
+    localStorage.setItem('cinematrix_liked', JSON.stringify(likedArray));  // Convert to string
 }
 
-// 2 & 3. Toggles Liking Logic Independently
 function toggleLike(movieId, buttonElement) {
-    // Edge Case Guard: Prevent rapid spam clicking execution
     if (isClickLocked) return;
     isClickLocked = true;
-    setTimeout(() => { isClickLocked = false; }, 300); // 300ms cooldown flag
+    setTimeout(() => { isClickLocked = false; }, 300);
 
     let likedList = getLikedMovies();
     const idString = String(movieId);
+    const labelSpan = buttonElement.querySelector('span');
 
     if (likedList.includes(idString)) {
-        // Already liked -> Remove it (Unlike)
+        // Unlike action
         likedList = likedList.filter(id => id !== idString);
-        buttonElement.innerText = "Like";
+        if (labelSpan) labelSpan.innerText = "Like";
         buttonElement.classList.remove('liked');
     } else {
-        // Not liked yet -> Add it (Like)
+        // Like action
         likedList.push(idString);
-        buttonElement.innerText = "Unlike";
+        if (labelSpan) labelSpan.innerText = "Liked";
         buttonElement.classList.add('liked');
     }
 
     saveLikedMovies(likedList);
 }
 
-// 1 & 4. Generates HTML Card Structure with Data Fallbacks & State Checks
+// Generates HTML Card Structure with Data Fallbacks & State Checks
 function createMovieCard(movie) {
     // Edge Case: Fallback for missing poster/backdrop images smoothly
     const cardImg = movie.backdrop_path 
@@ -72,31 +71,40 @@ function createMovieCard(movie) {
 
     // Edge Case: Fallback for empty titles
     const movieTitle = movie.title || movie.name || "Untitled Production";
-    const releaseYear = movie.release_date ? movie.release_date.split('-')[0] : '2026';
+    const releaseYear = movie.release_date ? movie.release_date.split('-')[0] : '2026';  
 
-    // State Correctness: Persist status lookups on load/reload matches
-    const likedList = getLikedMovies();
-    const isLiked = likedList.includes(String(movie.id));
-    const btnText = isLiked ? "Unlike" : "Like";
-    const btnClass = isLiked ? "btn-like liked" : "btn-like";
+    // Persist status lookups on load/reload matches
+// Inside createMovieCard(movie)
+const likedList = getLikedMovies();
+const isLiked = likedList.includes(String(movie.id));
+const btnText = isLiked ? "Liked" : "Like";
+const btnClass = isLiked ? "btn-like liked" : "btn-like";
 
-    return `
-        <div class="card">
-            <img src="${cardImg}" alt="${movieTitle}" class="card-img" onerror="this.src='https://images.unsplash.com/photo-1485846234645-a62644f84728?w=500'">
-            <div class="card-info">
-                <p class="card-title">${movieTitle}</p>
-                <p class="card-desc">${movie.overview || 'No overview synopsis recorded currently.'}</p>
-                <div class="card-meta">
-                    <span class="rating">★ ${movie.vote_average ? movie.vote_average.toFixed(1) : '7.5'}</span>
-                    <span class="year">${releaseYear}</span>
-                </div>
-                <!-- Combined Like/Unlike Interactive Button -->
-                <div class="card-actions">
-                    <button class="${btnClass}" onclick="toggleLike(${movie.id}, this)">${btnText}</button>
-                </div>
+// Thumbs Up SVG Icon
+const thumbSVG = `
+    <svg xmlns="http://www.w3.org/2000/svg" class="thumb-icon" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2" />
+    </svg>
+`;
+
+return `
+    <div class="card">
+        <img src="${cardImg}" alt="${movieTitle}" class="card-img" onerror="this.src='https://images.unsplash.com/photo-1485846234645-a62644f84728?w=500'">
+        <div class="card-info">
+            <p class="card-title">${movieTitle}</p>
+            <p class="card-desc">${movie.overview || 'No overview synopsis recorded currently.'}</p>
+            <div class="card-meta">
+                <span class="rating">★ ${movie.vote_average ? movie.vote_average.toFixed(1) : '7.5'}</span>
+                <span class="year">${releaseYear}</span>
+            </div>
+            <div class="card-actions">
+                <button class="${btnClass}" onclick="toggleLike(${movie.id}, this)">
+                    ${thumbSVG} <span>${btnText}</span>
+                </button>
             </div>
         </div>
-    `;
+    </div>
+`;
 }
 
 // Fetches the YouTube Video Key from TMDB
@@ -180,7 +188,7 @@ function stopTrailerPreview() {
     }
 }
 
-// Helper: Safely renders an API response list or throws a clear empty UI state notice
+// Safely renders an API response list or throws a clear empty UI state notice
 function populateRow(elementId, moviesList) {
     const container = document.getElementById(elementId);
     // Edge Case: If array missing, empty, or completely failed response
@@ -238,5 +246,59 @@ async function loadContentFromTMDB() {
     }
 }
 
-// Initial Launch Execution
-loadContentFromTMDB()
+// Dictionary of direct official URLs for major streaming networks
+const PROVIDER_URLS = {
+    "Netflix": "https://www.netflix.com",
+    "Amazon Prime Video": "https://www.primevideo.com",
+    "Apple TV": "https://tv.apple.com",
+    "Apple TV Plus": "https://tv.apple.com",
+    "Disney Plus": "https://www.disneyplus.com",
+    "Hulu": "https://www.hulu.com",
+    "HBO Max": "https://www.max.com",
+    "Max": "https://www.max.com",
+    "Peacock": "https://www.peacocktv.com",
+    "Peacock Premium": "https://www.peacocktv.com",
+    "Paramount Plus": "https://www.paramountplus.com",
+    "Crunchyroll": "https://www.crunchyroll.com",
+    "Tubi TV": "https://tubitv.com",
+    "Pluto TV": "https://pluto.tv",
+    "YouTube Premium": "https://www.youtube.com/premium"
+};
+
+// Fetches 15 top streaming platforms and renders them as clickable links
+async function loadStreamingProviders() {
+    const providersContainer = document.getElementById('providers-flex');
+    if (!providersContainer) return;
+
+    try {
+        const response = await fetch(`${BASE_URL}/watch/providers/movie?api_key=${TMDB_API_KEY}&watch_region=US`);
+        const data = await response.json();
+
+        // Expand view to top 15 streaming providers
+        const topProviders = (data.results || []).slice(0, 15);
+
+        if (topProviders.length === 0) {
+            providersContainer.innerHTML = `<p class="error-msg">No providers currently loaded.</p>`;
+            return;
+        }
+
+        providersContainer.innerHTML = topProviders.map(provider => {
+            // Find official direct URL or fallback to TMDB watch portal link
+            const targetLink = PROVIDER_URLS[provider.provider_name] || `https://www.themoviedb.org/watch`;
+
+            return `
+                <a href="${targetLink}" target="_blank" rel="noopener noreferrer" class="provider-card" title="Visit ${provider.provider_name}">
+                    <img src="${IMAGE_BASE_URL}/w92${provider.logo_path}" alt="${provider.provider_name}">
+                    <span class="provider-name">${provider.provider_name}</span>
+                </a>
+            `;
+        }).join('');
+
+    } catch (err) {
+        console.warn("Failed to fetch streaming providers:", err);
+        providersContainer.innerHTML = `<p class="error-msg">Unable to load streaming networks.</p>`;
+    }
+}
+// Initial Launch Executions of API Calls
+loadContentFromTMDB();
+loadStreamingProviders();  
