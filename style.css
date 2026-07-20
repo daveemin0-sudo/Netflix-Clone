@@ -351,3 +351,49 @@ body {
 .hero-content {
     z-index: 3; /* Forces text and controls above the video layer */
 }
+
+/* Like / Unlike Button Styling */
+.card-actions {
+    margin-top: 8px;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.btn-like {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: var(--text-white);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    padding: 4px 12px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+    text-align: center;
+}
+
+.btn-like:hover {
+    background-color: var(--text-white);
+    color: black;
+}
+
+/* Visual state changes when liked */
+.btn-like.liked {
+    background-color: var(--primary-red);
+    border-color: var(--primary-red);
+    color: var(--text-white);
+}
+
+.btn-like.liked:hover {
+    background-color: #b20710;
+    border-color: #b20710;
+}
+
+/* Error message state */
+.error-msg {
+    color: var(--text-gray);
+    font-size: 0.9rem;
+    padding: 15px 0;
+    font-style: italic;
+}

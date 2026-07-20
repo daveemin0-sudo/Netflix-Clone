@@ -13,7 +13,9 @@ const TMDB_API_KEY = 'd51abdfc02fc1c571b0d8b7c1e0495a8';
 const BASE_URL = 'https://api.themoviedb.org/3';
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p';
 
-let currentHeroMovie = null; // Keeps track of what is playing in the banner
+let currentHeroMovie = null; 
+let trailerTimeout = null;      
+let isClickLocked = false; // Guardrail to prevent rapid click spamming
 
 // Handles Navbar BG Transparency Transition on Scroll
 window.addEventListener('scroll', () => {
@@ -25,77 +27,100 @@ window.addEventListener('scroll', () => {
     }
 });
 
+// Helper: Fetch array of liked movie IDs from LocalStorage
+function getLikedMovies() {
+    const saved = localStorage.getItem('cinematrix_liked');
+    return saved ? JSON.parse(saved) : [];
+}
+
+// Helper: Save updated array of liked IDs back to LocalStorage
+function saveLikedMovies(likedArray) {
+    localStorage.setItem('cinematrix_liked', JSON.stringify(likedArray));
+}
+
+// 2 & 3. Toggles Liking Logic Independently
+function toggleLike(movieId, buttonElement) {
+    // Edge Case Guard: Prevent rapid spam clicking execution
+    if (isClickLocked) return;
+    isClickLocked = true;
+    setTimeout(() => { isClickLocked = false; }, 300); // 300ms cooldown flag
+
+    let likedList = getLikedMovies();
+    const idString = String(movieId);
+
+    if (likedList.includes(idString)) {
+        // Already liked -> Remove it (Unlike)
+        likedList = likedList.filter(id => id !== idString);
+        buttonElement.innerText = "Like";
+        buttonElement.classList.remove('liked');
+    } else {
+        // Not liked yet -> Add it (Like)
+        likedList.push(idString);
+        buttonElement.innerText = "Unlike";
+        buttonElement.classList.add('liked');
+    }
+
+    saveLikedMovies(likedList);
+}
+
+// 1 & 4. Generates HTML Card Structure with Data Fallbacks & State Checks
+function createMovieCard(movie) {
+    // Edge Case: Fallback for missing poster/backdrop images smoothly
+    const cardImg = movie.backdrop_path 
+        ? `${IMAGE_BASE_URL}/w500${movie.backdrop_path}` 
+        : 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=500';
+
+    // Edge Case: Fallback for empty titles
+    const movieTitle = movie.title || movie.name || "Untitled Production";
+    const releaseYear = movie.release_date ? movie.release_date.split('-')[0] : '2026';
+
+    // State Correctness: Persist status lookups on load/reload matches
+    const likedList = getLikedMovies();
+    const isLiked = likedList.includes(String(movie.id));
+    const btnText = isLiked ? "Unlike" : "Like";
+    const btnClass = isLiked ? "btn-like liked" : "btn-like";
+
+    return `
+        <div class="card">
+            <img src="${cardImg}" alt="${movieTitle}" class="card-img" onerror="this.src='https://images.unsplash.com/photo-1485846234645-a62644f84728?w=500'">
+            <div class="card-info">
+                <p class="card-title">${movieTitle}</p>
+                <p class="card-desc">${movie.overview || 'No overview synopsis recorded currently.'}</p>
+                <div class="card-meta">
+                    <span class="rating">★ ${movie.vote_average ? movie.vote_average.toFixed(1) : '7.5'}</span>
+                    <span class="year">${releaseYear}</span>
+                </div>
+                <!-- Combined Like/Unlike Interactive Button -->
+                <div class="card-actions">
+                    <button class="${btnClass}" onclick="toggleLike(${movie.id}, this)">${btnText}</button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
 // Fetches the YouTube Video Key from TMDB
 async function fetchMovieVideo(id, mediaType = 'movie') {
-    // TMDB treats trending items as mixed media types ('movie' or 'tv')
     const type = mediaType === 'tv' ? 'tv' : 'movie';
     const videoUrl = `${BASE_URL}/${type}/${id}/videos?api_key=${TMDB_API_KEY}`;
     
     try {
         const response = await fetch(videoUrl);
         const data = await response.json();
-        // Look specifically for a Trailer hosted on YouTube
         const trailer = data.results.find(vid => vid.site === 'YouTube' && vid.type === 'Trailer');
         return trailer ? trailer.key : null;
     } catch (err) {
-        console.error("Error loading video payload:", err);
         return null;
     }
 }
 
-// // Local Fallback Visual Data if network or API keys aren't working
-// const BACKUP_SHOWS = [
-//     {
-//         title: "Stranger Code",
-//         overview: "When a brilliant young developer vanishes from a tech hub, his friends uncover a web of secret APIs.",
-//         vote_average: 9.4,
-//         release_date: "2026-05-12",
-//         backdrop_path: "/photo-1626814026160-2237a95fc5a0",
-//         isBackup: true
-//     }
-// ];
-
-// // Handles Navbar BG Transparency Transition on Scroll
-// window.addEventListener('scroll', () => {
-//     const navbar = document.getElementById('navbar');
-//     if (window.scrollY > 40) {
-//         navbar.classList.add('solid');
-//     } else {
-//         navbar.classList.remove('solid');
-//     }
-// });
-
-// // Handles Movie Card Creation, Generates the HTML Card Structure (targeted to style.css)
-// function createMovieCard(movie) {
-//     const cardImg = movie.isBackup 
-//         ? `https://images.unsplash.com${movie.backdrop_path}?q=80&w=500`
-//         : (movie.backdrop_path ? `${IMAGE_BASE_URL}/w500${movie.backdrop_path}` : 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=500');
-
-//     const releaseYear = movie.release_date ? movie.release_date.split('-')[0] : '2026';
-
-//     return `
-//         <div class="card">
-//             <img src="${cardImg}" alt="${movie.title || movie.name}" class="card-img">
-//             <div class="card-info">
-//                 <p class="card-title">${movie.title || movie.name}</p>
-//                 <p class="card-desc">${movie.overview || 'No overview available.'}</p>
-//                 <div class="card-meta">
-//                     <span class="rating">★ ${movie.vote_average ? movie.vote_average.toFixed(1) : '7.5'}</span>
-//                     <span class="year">${releaseYear}</span>
-//                 </div>
-//             </div>
-//         </div>
-//     `;
-// }
-
-// Handles Movie Card Creation, Generates the HTML Card Structure (targeted to style.css)
+// Controls the Hero Banner Visual Setup
 function setupHero(movie) {
     currentHeroMovie = movie; 
     const heroBanner = document.getElementById('hero-banner');
-    document.getElementById('hero-title').innerText = movie.title || movie.name;
+    document.getElementById('hero-title').innerText = movie.title || movie.name || "Featured Spotlight";
     document.getElementById('hero-desc').innerText = movie.overview || 'No description listed currently.';
     
-    // Clear out any running video and kill any remaining active timers
     document.getElementById('hero-video-container').innerHTML = '';
     if (trailerTimeout) {
         clearTimeout(trailerTimeout);
@@ -109,33 +134,13 @@ function setupHero(movie) {
     heroBanner.style.backgroundImage = `url('${bgImage}')`;
 }
 
-// Configuration Settings (Add this at the top with your other configurations)
-const PREVIEW_DURATION = 110000; // 110 seconds
-let trailerTimeout = null;      // Keeps track of the active countdown timer
-
 // Click Event Listener for Play Button with Automatic Timeout
 document.getElementById('play-btn').addEventListener('click', async () => {
-    if (!currentHeroMovie || currentHeroMovie.isBackup) return;
+    if (!currentHeroMovie) return;
 
     const videoContainer = document.getElementById('hero-video-container');
     const playBtn = document.getElementById('play-btn');
 
-    // Function to safely stop the video and reset the UI
-    const stopTrailerPreview = () => {
-        videoContainer.innerHTML = '';
-        playBtn.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" class="btn-icon" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
-            </svg> Play Trailer`;
-        
-        // Clear the timeout tracking if stopped manually early
-        if (trailerTimeout) {
-            clearTimeout(trailerTimeout);
-            trailerTimeout = null;
-        }
-    };
-
-    // If it's already playing, clicking it resets/stops it instantly
     if (videoContainer.innerHTML !== '') {
         stopTrailerPreview();
         return;
@@ -145,7 +150,6 @@ document.getElementById('play-btn').addEventListener('click', async () => {
     const youtubeKey = await fetchMovieVideo(currentHeroMovie.id, currentHeroMovie.media_type);
 
     if (youtubeKey) {
-        // Inject YouTube Player
         videoContainer.innerHTML = `
             <iframe src="https://www.youtube.com/embed/${youtubeKey}?autoplay=1&mute=1&controls=0&loop=1&playlist=${youtubeKey}&rel=0&showinfo=0&modestbranding=1" 
                     frameborder="0" allow="autoplay; encrypted-media" allowfullscreen>
@@ -153,9 +157,7 @@ document.getElementById('play-btn').addEventListener('click', async () => {
         `;
         playBtn.innerText = "Stop Trailer";
 
-        // Start the automatic countdown timer to stop the video
         trailerTimeout = setTimeout(() => {
-            console.log("Preview limit reached. Stopping trailer automatically.");
             stopTrailerPreview();
         }, PREVIEW_DURATION);
 
@@ -165,30 +167,31 @@ document.getElementById('play-btn').addEventListener('click', async () => {
     }
 });
 
-// Generates the HTML Card Structure
-function createMovieCard(movie) {
-    const cardImg = movie.backdrop_path 
-        ? `${IMAGE_BASE_URL}/w500${movie.backdrop_path}` 
-        : 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=500';
-
-    const releaseYear = movie.release_date ? movie.release_date.split('-')[0] : '2026';
-
-    return `
-        <div class="card">
-            <img src="${cardImg}" alt="${movie.title || movie.name}" class="card-img">
-            <div class="card-info">
-                <p class="card-title">${movie.title || movie.name}</p>
-                <p class="card-desc">${movie.overview || 'No overview available.'}</p>
-                <div class="card-meta">
-                    <span class="rating">★ ${movie.vote_average ? movie.vote_average.toFixed(1) : '7.5'}</span>
-                    <span class="year">${releaseYear}</span>
-                </div>
-            </div>
-        </div>
-    `;
+function stopTrailerPreview() {
+    document.getElementById('hero-video-container').innerHTML = '';
+    document.getElementById('play-btn').innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="btn-icon" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+        </svg> Play Trailer`;
+    
+    if (trailerTimeout) {
+        clearTimeout(trailerTimeout);
+        trailerTimeout = null;
+    }
 }
 
-// Fetches data from TMDB and populates rows
+// Helper: Safely renders an API response list or throws a clear empty UI state notice
+function populateRow(elementId, moviesList) {
+    const container = document.getElementById(elementId);
+    // Edge Case: If array missing, empty, or completely failed response
+    if (!moviesList || moviesList.length === 0) {
+        container.innerHTML = `<p class="error-msg">No titles currently available for this category.</p>`;
+        return;
+    }
+    container.innerHTML = moviesList.slice(0, 12).map(m => createMovieCard(m)).join('');
+}
+
+// Main operational hook downloading array groups parallelly
 async function loadContentFromTMDB() {
     const urls = {
         trending: `${BASE_URL}/trending/all/week?api_key=${TMDB_API_KEY}`,
@@ -203,6 +206,11 @@ async function loadContentFromTMDB() {
             fetch(urls.trending), fetch(urls.topRated), fetch(urls.popular), fetch(urls.upcoming), fetch(urls.action)
         ]);
 
+        // Break explicitly to trigger catch blocks on bad headers or dead keys
+        if (!trendingRes.ok || !topRatedRes.ok || !popularRes.ok || !upcomingRes.ok || !actionRes.ok) {
+            throw new Error("HTTP failure loading server response streams.");
+        }
+
         const trendingData = await trendingRes.json();
         const topRatedData = await topRatedRes.json();
         const popularData = await popularRes.json();
@@ -213,15 +221,22 @@ async function loadContentFromTMDB() {
             setupHero(trendingData.results[0]);
         }
 
-        document.getElementById('trending-row').innerHTML = (trendingData.results || []).slice(0, 15).map(m => createMovieCard(m)).join('');
-        document.getElementById('top-rated-row').innerHTML = (topRatedData.results || []).slice(0, 15).map(m => createMovieCard(m)).join('');
-        document.getElementById('popular-row').innerHTML = (popularData.results || []).slice(0, 15).map(m => createMovieCard(m)).join('');
-        document.getElementById('upcoming-row').innerHTML = (upcomingData.results || []).slice(0, 15).map(m => createMovieCard(m)).join('');
-        document.getElementById('action-row').innerHTML = (actionData.results || []).slice(0, 15).map(m => createMovieCard(m)).join('');
+        // Render sections perfectly while maintaining independent storage lookup integrity
+        populateRow('trending-row', trendingData.results);
+        populateRow('top-rated-row', topRatedData.results);
+        populateRow('popular-row', popularData.results);
+        populateRow('upcoming-row', upcomingData.results);
+        populateRow('action-row', actionData.results);
 
     } catch (err) {
-        console.warn("API Error:", err.message);
+        console.warn("API Error caught:", err.message);
+        // Edge Case: Handle complete network down states gracefully for every visible container element
+        const rows = ['trending-row', 'top-rated-row', 'popular-row', 'upcoming-row', 'action-row'];
+        rows.forEach(row => {
+            document.getElementById(row).innerHTML = `<p class="error-msg">Failed to load content. Check your network connection.</p>`;
+        });
     }
 }
 
-loadContentFromTMDB();
+// Initial Launch Execution
+loadContentFromTMDB()
