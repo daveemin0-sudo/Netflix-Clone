@@ -133,6 +133,7 @@ class HeroBanner {
             desc: document.getElementById('hero-desc'),
             videoContainer: document.getElementById('hero-video-container'),
             playBtn: document.getElementById('play-btn'),
+            infoBtn: document.querySelector('.btn-info'),
             dotsContainer: document.getElementById('hero-nav-dots'),
             muteBtn: document.getElementById('mute-btn')
         };
@@ -145,9 +146,11 @@ class HeroBanner {
             this.toggleMute();
         });
 
-        window.onYouTubeIframeAPIReady = () => {
-            // This function is now ready to be used by playTrailer
-        };
+        this.elements.infoBtn.addEventListener('click', () => {
+            const movie = this.movies[this.currentIndex];
+            openMovieModal(movie.id, movie.media_type);
+        });
+
     }
 
     // Start the slideshow
@@ -207,18 +210,12 @@ class HeroBanner {
         this.updateMuteButton();
 
         if (youtubeKey) {
-            // Create a div for the player to attach to
-            const playerDiv = document.createElement('div');
-            playerDiv.id = 'youtube-player';
-            this.elements.videoContainer.appendChild(playerDiv);
-
-            this.player = new YT.Player('youtube-player', {
-                height: '100%',
-                width: '100%',
-                videoId: youtubeKey,
-                playerVars: { autoplay: 1, controls: 0, loop: 1, playlist: youtubeKey, rel: 0, showinfo: 0, modestbranding: 1 },
-                events: { 'onReady': (event) => this.onPlayerReady(event) }
-            });
+            // If YT API is ready, create player. Otherwise, queue it.
+            if (window.YT && window.YT.Player) {
+                this.createPlayer(youtubeKey);
+            } else {
+                window.queuedPlayer = { key: youtubeKey, banner: this };
+            }
         } else {
             this.elements.playBtn.innerText = "Trailer Unavailable";
             setTimeout(() => this.restorePlayButton(), 2000);
@@ -237,6 +234,24 @@ class HeroBanner {
             clearTimeout(this.trailerTimer);
             this.trailerTimer = null;
         }
+    }
+
+    createPlayer(youtubeKey) {
+        // Create a div for the player to attach to
+        const playerDiv = document.createElement('div');
+        playerDiv.id = 'youtube-player';
+        this.elements.videoContainer.innerHTML = ''; // Clear any old divs
+        this.elements.videoContainer.appendChild(playerDiv);
+
+        this.player = new YT.Player('youtube-player', {
+            height: '100%',
+            width: '100%',
+            videoId: youtubeKey,
+            playerVars: { autoplay: 1, controls: 0, loop: 1, playlist: youtubeKey, rel: 0, showinfo: 0, modestbranding: 1 },
+            events: { 'onReady': (event) => this.onPlayerReady(event) }
+        });
+
+        window.queuedPlayer = null; // Clear the queue
     }
 
     onPlayerReady(event) {
@@ -262,17 +277,17 @@ class HeroBanner {
 
     // Update the navigation dots
     updateNavDots() {
-        this.elements.dotsContainer.innerHTML = ''; // Clear existing dots
-        this.movies.forEach((_, index) => {
-            const dot = document.createElement('div');
-            dot.classList.add('hero-dot');
-            dot.dataset.index = index; // Add index for click handling
-            if (index === this.currentIndex) {
-                dot.classList.add('active');
-            }
-            dot.addEventListener('click', () => this.jumpTo(index));
-            this.elements.dotsContainer.appendChild(dot);
-        });
+        // this.elements.dotsContainer.innerHTML = ''; // Clear existing dots
+        // this.movies.forEach((_, index) => {
+        //     const dot = document.createElement('div');
+        //     dot.classList.add('hero-dot');
+        //     dot.dataset.index = index; // Add index for click handling
+        //     if (index === this.currentIndex) {
+        //         dot.classList.add('active');
+        //     }
+        //     dot.addEventListener('click', () => this.jumpTo(index));
+        //     this.elements.dotsContainer.appendChild(dot);
+        // });
     }
 
     toggleMute() {
@@ -302,6 +317,26 @@ class HeroBanner {
     }
 }
 
+/**
+ * Shuffles an array in place.
+ * @param {Array} array The array to shuffle.
+ */
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+    }
+}
+
+// This global function is called by the YouTube Iframe API script when it's ready
+function onYouTubeIframeAPIReady() {
+    // If a player was queued before the API was ready, create it now
+    if (window.queuedPlayer) {
+        const { key, banner } = window.queuedPlayer;
+        banner.createPlayer(key);
+    }
+}
+
 // Safely renders an API response list or throws a clear empty UI state notice
 function populateRow(elementId, moviesList) {
     const container = document.getElementById(elementId);
@@ -312,7 +347,7 @@ function populateRow(elementId, moviesList) {
     }
     container.innerHTML = moviesList.slice(0, 12).map(m => createMovieCard(m)).join('');
 
-    // Use event delegation for like buttons
+    // Use event delegation for card clicks and like buttons
     container.addEventListener('click', (e) => {
         const target = e.target;
         const likeButton = target.closest('.btn-like');
@@ -350,7 +385,6 @@ async function openMovieModal(movieId, mediaType) {
         modal.classList.add('visible');
     } catch (err) {
         console.error("Could not open modal:", err);
-        // Optionally show a small error toast/notification
     }
 }
 
@@ -450,7 +484,9 @@ async function loadContentFromTMDB() {
         ]);
 
         if (trendingData.results && trendingData.results.length > 0) {
-            const heroMovies = trendingData.results.slice(0, 5);
+            const allTrending = trendingData.results;
+            shuffleArray(allTrending); // Randomize the list
+            const heroMovies = allTrending.slice(0, 7); // Take a random selection of 7
             heroBanner = new HeroBanner(heroMovies);
             heroBanner.start();
         }
