@@ -1,24 +1,14 @@
-// API Options
-const option2 = {
-method: 'GET',
-hearders: {
-    accept: 'application/json',
-    Authorization: 
-    'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJkNTFhYmRmYzAyZmMxYzU3MWIwZDhiN2MxZTA0OTVhOCIsIm5iZiI6MTc4MzkzMDgxNy40LCJzdWIiOiI2YTU0OWZjMWZjNjc3M2QwYTAyNTcwMmUiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.fZ06W9ayde9hmhSl4aj44zN4EMKqXCUajocjr-rV0nA,'
-    }
-};
-
 // API Keys and Base URL, Configuration Settings
 const TMDB_API_KEY = 'd51abdfc02fc1c571b0d8b7c1e0495a8'; 
 const BASE_URL = 'https://api.themoviedb.org/3';
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p';
 
-let currentHeroMovie = null; 
-let trailerTimeout = null;      
 let isClickLocked = false; // Guardrail to prevent rapid click spamming
+let heroBanner = null; // Holds the HeroBanner instance
 
 // Handles Navbar BG Transparency Transition on Scroll
 window.addEventListener('scroll', () => {
+
     const navbar = document.getElementById('navbar');
     if (window.scrollY > 40) {
         navbar.classList.add('solid');
@@ -41,7 +31,7 @@ function saveLikedMovies(likedArray) {
 function toggleLike(movieId, buttonElement) {
     if (isClickLocked) return;
     isClickLocked = true;
-    setTimeout(() => { isClickLocked = false; }, 300);
+    setTimeout(() => { isClickLocked = false; }, 300); 
 
     let likedList = getLikedMovies();
     const idString = String(movieId);
@@ -88,7 +78,7 @@ const thumbSVG = `
 `;
 
 return `
-    <div class="card">
+    <div class="card" data-movie-id="${movie.id}" data-media-type="${movie.media_type || 'movie'}">
         <img src="${cardImg}" alt="${movieTitle}" class="card-img" onerror="this.src='https://images.unsplash.com/photo-1485846234645-a62644f84728?w=500'">
         <div class="card-info">
             <p class="card-title">${movieTitle}</p>
@@ -98,7 +88,7 @@ return `
                 <span class="year">${releaseYear}</span>
             </div>
             <div class="card-actions">
-                <button class="${btnClass}" onclick="toggleLike(${movie.id}, this)">
+                <button class="${btnClass}" data-movie-id="${movie.id}">
                     ${thumbSVG} <span>${btnText}</span>
                 </button>
             </div>
@@ -118,73 +108,197 @@ async function fetchMovieVideo(id, mediaType = 'movie') {
         const trailer = data.results.find(vid => vid.site === 'YouTube' && vid.type === 'Trailer');
         return trailer ? trailer.key : null;
     } catch (err) {
+        console.error(`Failed to fetch video for ID ${id}:`, err);
         return null;
     }
 }
 
-// Controls the Hero Banner Visual Setup
-function setupHero(movie) {
-    currentHeroMovie = movie; 
-    const heroBanner = document.getElementById('hero-banner');
-    document.getElementById('hero-title').innerText = movie.title || movie.name || "Featured Spotlight";
-    document.getElementById('hero-desc').innerText = movie.overview || 'No description listed currently.';
-    
-    document.getElementById('hero-video-container').innerHTML = '';
-    if (trailerTimeout) {
-        clearTimeout(trailerTimeout);
-        trailerTimeout = null;
+/**
+ * Class to manage the state and behavior of the hero banner slideshow.
+ */
+class HeroBanner {
+    constructor(movies, cycleInterval = 25000, previewDuration = 20000) {
+        this.movies = movies;
+        this.currentIndex = 0;
+        this.cycleInterval = cycleInterval;
+        this.previewDuration = previewDuration;
+        this.cycleTimer = null;
+        this.trailerTimer = null;
+        this.isMuted = true;
+        this.player = null; // To hold the YouTube player instance
+
+        this.elements = {
+            banner: document.getElementById('hero-banner'),
+            title: document.getElementById('hero-title'),
+            desc: document.getElementById('hero-desc'),
+            videoContainer: document.getElementById('hero-video-container'),
+            playBtn: document.getElementById('play-btn'),
+            dotsContainer: document.getElementById('hero-nav-dots'),
+            muteBtn: document.getElementById('mute-btn')
+        };
+
+        this.elements.playBtn.addEventListener('click', () => {
+            this.player ? this.stopTrailer() : this.playTrailer();
+        });
+
+        this.elements.muteBtn.addEventListener('click', () => {
+            this.toggleMute();
+        });
+
+        window.onYouTubeIframeAPIReady = () => {
+            // This function is now ready to be used by playTrailer
+        };
     }
 
-    const bgImage = movie.backdrop_path 
-        ? `${IMAGE_BASE_URL}/original${movie.backdrop_path}` 
-        : "https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?q=80&w=1920";
+    // Start the slideshow
+    start() {
+        if (this.movies.length === 0) return;
+        this.update(this.currentIndex);
+        if (this.movies.length > 1) {
+            this.cycleTimer = setInterval(() => this.cycle(), this.cycleInterval);
+        }
+    }
+
+    // Cycle to the next movie
+    cycle() {
+        this.currentIndex = (this.currentIndex + 1) % this.movies.length;
+        this.update(this.currentIndex);
+    }
+
+    // Jump to a specific movie
+    jumpTo(index) {
+        if (index < 0 || index >= this.movies.length || index === this.currentIndex) return;
+        clearInterval(this.cycleTimer); // Stop auto-cycle
+        this.currentIndex = index;
+        this.update(this.currentIndex);
+        // Restart auto-cycle after a manual jump
+        if (this.movies.length > 1) {
+            this.cycleTimer = setInterval(() => this.cycle(), this.cycleInterval);
+        }
+    }
+
+    // Update the banner with a specific movie
+    update(index) {
+        const movie = this.movies[index];
+        this.stopTrailer(); // Stop any previous trailer
+
+        this.elements.title.innerText = movie.title || movie.name || "Featured Spotlight";
+        this.elements.desc.innerText = movie.overview || 'No description listed currently.';
+
+        const bgImage = movie.backdrop_path 
+            ? `${IMAGE_BASE_URL}/original${movie.backdrop_path}` 
+            : "https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?q=80&w=1920";
         
-    heroBanner.style.backgroundImage = `url('${bgImage}')`;
-}
-
-// Click Event Listener for Play Button with Automatic Timeout
-document.getElementById('play-btn').addEventListener('click', async () => {
-    if (!currentHeroMovie) return;
-
-    const videoContainer = document.getElementById('hero-video-container');
-    const playBtn = document.getElementById('play-btn');
-
-    if (videoContainer.innerHTML !== '') {
-        stopTrailerPreview();
-        return;
+        this.elements.banner.style.backgroundImage = `url('${bgImage}')`;
+        
+        this.updateNavDots();
+        this.playTrailer();
     }
 
-    playBtn.innerText = "Loading Video...";
-    const youtubeKey = await fetchMovieVideo(currentHeroMovie.id, currentHeroMovie.media_type);
+    // Play the trailer for the current movie
+    async playTrailer() {
+        if (this.player) return; // Player already exists
+        const movie = this.movies[this.currentIndex];
+        if (!movie) return;
 
-    if (youtubeKey) {
-        videoContainer.innerHTML = `
-            <iframe src="https://www.youtube.com/embed/${youtubeKey}?autoplay=1&mute=1&controls=0&loop=1&playlist=${youtubeKey}&rel=0&showinfo=0&modestbranding=1" 
-                    frameborder="0" allow="autoplay; encrypted-media" allowfullscreen>
-            </iframe>
-        `;
-        playBtn.innerText = "Stop Trailer";
+        this.elements.playBtn.innerText = "Loading Video...";
+        const youtubeKey = await fetchMovieVideo(movie.id, movie.media_type);
 
-        trailerTimeout = setTimeout(() => {
-            stopTrailerPreview();
-        }, PREVIEW_DURATION);
+        this.updateMuteButton();
 
-    } else {
-        playBtn.innerText = "Trailer Unavailable";
-        setTimeout(() => { playBtn.innerText = "Play Trailer"; }, 2000);
+        if (youtubeKey) {
+            // Create a div for the player to attach to
+            const playerDiv = document.createElement('div');
+            playerDiv.id = 'youtube-player';
+            this.elements.videoContainer.appendChild(playerDiv);
+
+            this.player = new YT.Player('youtube-player', {
+                height: '100%',
+                width: '100%',
+                videoId: youtubeKey,
+                playerVars: { autoplay: 1, controls: 0, loop: 1, playlist: youtubeKey, rel: 0, showinfo: 0, modestbranding: 1 },
+                events: { 'onReady': (event) => this.onPlayerReady(event) }
+            });
+        } else {
+            this.elements.playBtn.innerText = "Trailer Unavailable";
+            setTimeout(() => this.restorePlayButton(), 2000);
+        }
     }
-});
 
-function stopTrailerPreview() {
-    document.getElementById('hero-video-container').innerHTML = '';
-    document.getElementById('play-btn').innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" class="btn-icon" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
-        </svg> Play Trailer`;
-    
-    if (trailerTimeout) {
-        clearTimeout(trailerTimeout);
-        trailerTimeout = null;
+    // Stop the currently playing trailer
+    stopTrailer() {
+        if (this.player) {
+            this.player.destroy();
+            this.player = null;
+        }
+        this.elements.videoContainer.innerHTML = '';
+        this.restorePlayButton();
+        if (this.trailerTimer) {
+            clearTimeout(this.trailerTimer);
+            this.trailerTimer = null;
+        }
+    }
+
+    onPlayerReady(event) {
+        if (this.isMuted) {
+            event.target.mute();
+        } else {
+            event.target.unMute();
+        }
+        event.target.playVideo();
+
+        this.elements.playBtn.innerText = "Stop Trailer";
+        // Set a timeout to stop the preview
+        this.trailerTimer = setTimeout(() => this.stopTrailer(), this.previewDuration);
+    }
+
+    // Restore the "Play Trailer" button
+    restorePlayButton() {
+        this.elements.playBtn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" class="btn-icon" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+            </svg> Play Trailer`;
+    }
+
+    // Update the navigation dots
+    updateNavDots() {
+        this.elements.dotsContainer.innerHTML = ''; // Clear existing dots
+        this.movies.forEach((_, index) => {
+            const dot = document.createElement('div');
+            dot.classList.add('hero-dot');
+            dot.dataset.index = index; // Add index for click handling
+            if (index === this.currentIndex) {
+                dot.classList.add('active');
+            }
+            dot.addEventListener('click', () => this.jumpTo(index));
+            this.elements.dotsContainer.appendChild(dot);
+        });
+    }
+
+    toggleMute() {
+        this.isMuted = !this.isMuted;
+        if (this.player) {
+            if (this.isMuted) {
+                this.player.mute();
+            } else {
+                this.player.unMute();
+            }
+        }
+        this.updateMuteButton();
+    }
+
+    updateMuteButton() {
+        if (this.isMuted) {
+            this.elements.muteBtn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" clip-rule="evenodd" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+                </svg>`;
+        } else {
+            this.elements.muteBtn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                </svg>`;
+        }
     }
 }
 
@@ -197,10 +311,126 @@ function populateRow(elementId, moviesList) {
         return;
     }
     container.innerHTML = moviesList.slice(0, 12).map(m => createMovieCard(m)).join('');
+
+    // Use event delegation for like buttons
+    container.addEventListener('click', (e) => {
+        const target = e.target;
+        const likeButton = target.closest('.btn-like');
+        const card = target.closest('.card');
+
+        if (likeButton) {
+            // Prevent modal from opening when like is clicked
+            e.stopPropagation(); 
+            toggleLike(likeButton.dataset.movieId, likeButton);
+        } else if (card) {
+            openMovieModal(card.dataset.movieId, card.dataset.mediaType);
+        }
+    });
 }
+
+// Helper to fetch and parse JSON, centralizing error handling
+async function fetchAndParse(url) {
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return await response.json();
+}
+
+// --- Modal Logic ---
+
+const modal = document.getElementById('movie-modal');
+const modalBody = document.getElementById('modal-body');
+const modalCloseBtn = document.getElementById('modal-close-btn');
+
+async function openMovieModal(movieId, mediaType) {
+    try {
+        const details = await fetchMovieDetails(movieId, mediaType);
+        populateModal(details);
+        modal.classList.add('visible');
+    } catch (err) {
+        console.error("Could not open modal:", err);
+        // Optionally show a small error toast/notification
+    }
+}
+
+function closeModal() {
+    modal.classList.remove('visible');
+    modalBody.innerHTML = ''; // Clear content for next time
+}
+
+modal.addEventListener('click', (e) => {
+    // Close if the overlay (but not content) is clicked
+    if (e.target.classList.contains('modal-overlay')) {
+        closeModal();
+    }
+});
+modalCloseBtn.addEventListener('click', closeModal);
+
+async function fetchMovieDetails(id, mediaType = 'movie') {
+    const url = `${BASE_URL}/${mediaType}/${id}?api_key=${TMDB_API_KEY}&append_to_response=credits`;
+    return await fetchAndParse(url);
+}
+
+function populateModal(details) {
+    const backdropUrl = details.backdrop_path 
+        ? `${IMAGE_BASE_URL}/original${details.backdrop_path}`
+        : 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?q=80&w=1920';
+
+    const director = details.credits?.crew.find(p => p.job === 'Director')?.name || 'N/A';
+    const cast = details.credits?.cast.slice(0, 5).map(p => p.name).join(', ') || 'N/A';
+    const genres = details.genres?.map(g => `<li class="genre-pill">${g.name}</li>`).join('') || '';
+
+    modalBody.innerHTML = `
+        <div class="modal-backdrop" style="background-image: url('${backdropUrl}')">
+            <h2 class="modal-backdrop-title">${details.title || details.name}</h2>
+        </div>
+        <div class="modal-details">
+            <div class="modal-details-left">
+                <p class="modal-overview">${details.overview || 'No overview available.'}</p>
+            </div>
+            <div class="modal-details-right">
+                <p class="meta-item">
+                    <strong>Cast:</strong> 
+                    <span>${cast}</span>
+                </p>
+                <p class="meta-item">
+                    <strong>Director:</strong> 
+                    <span>${director}</span>
+                </p>
+                <p class="meta-item">
+                    <strong>Rating:</strong> 
+                    <span>★ ${details.vote_average ? details.vote_average.toFixed(1) : 'N/A'}</span>
+                </p>
+                <p class="meta-item">
+                    <strong>Release Date:</strong> 
+                    <span>${details.release_date || details.first_air_date || 'N/A'}</span>
+                </p>
+                <div class="meta-item">
+                    <strong>Genres:</strong>
+                    <ul class="genres-list">
+                        ${genres}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Close modal with the 'Escape' key
+window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.classList.contains('visible')) {
+        closeModal();
+    }
+});
 
 // Main operational hook downloading array groups parallelly
 async function loadContentFromTMDB() {
+    const rowIds = ['trending-row', 'top-rated-row', 'popular-row', 'upcoming-row', 'action-row'];
+    const showError = (message) => {
+        rowIds.forEach(id => document.getElementById(id).innerHTML = `<p class="error-msg">${message}</p>`);
+    };
+
     const urls = {
         trending: `${BASE_URL}/trending/all/week?api_key=${TMDB_API_KEY}`,
         topRated: `${BASE_URL}/movie/top_rated?api_key=${TMDB_API_KEY}`,
@@ -209,24 +439,20 @@ async function loadContentFromTMDB() {
         action: `${BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&with_genres=28`
     };
 
+    // Fetch all parallelly
     try {
-        const [trendingRes, topRatedRes, popularRes, upcomingRes, actionRes] = await Promise.all([
-            fetch(urls.trending), fetch(urls.topRated), fetch(urls.popular), fetch(urls.upcoming), fetch(urls.action)
+        const [trendingData, topRatedData, popularData, upcomingData, actionData] = await Promise.all([  
+            fetchAndParse(urls.trending),
+            fetchAndParse(urls.topRated),
+            fetchAndParse(urls.popular),
+            fetchAndParse(urls.upcoming),
+            fetchAndParse(urls.action)
         ]);
 
-        // Break explicitly to trigger catch blocks on bad headers or dead keys
-        if (!trendingRes.ok || !topRatedRes.ok || !popularRes.ok || !upcomingRes.ok || !actionRes.ok) {
-            throw new Error("HTTP failure loading server response streams.");
-        }
-
-        const trendingData = await trendingRes.json();
-        const topRatedData = await topRatedRes.json();
-        const popularData = await popularRes.json();
-        const upcomingData = await upcomingRes.json();
-        const actionData = await actionRes.json();
-
         if (trendingData.results && trendingData.results.length > 0) {
-            setupHero(trendingData.results[0]);
+            const heroMovies = trendingData.results.slice(0, 5);
+            heroBanner = new HeroBanner(heroMovies);
+            heroBanner.start();
         }
 
         // Render sections perfectly while maintaining independent storage lookup integrity
@@ -235,14 +461,9 @@ async function loadContentFromTMDB() {
         populateRow('popular-row', popularData.results);
         populateRow('upcoming-row', upcomingData.results);
         populateRow('action-row', actionData.results);
-
     } catch (err) {
-        console.warn("API Error caught:", err.message);
-        // Edge Case: Handle complete network down states gracefully for every visible container element
-        const rows = ['trending-row', 'top-rated-row', 'popular-row', 'upcoming-row', 'action-row'];
-        rows.forEach(row => {
-            document.getElementById(row).innerHTML = `<p class="error-msg">Failed to load content. Check your network connection.</p>`;
-        });
+        console.error("API Error caught:", err.message);
+        showError("Failed to load content. Check your network connection or API key.");
     }
 }
 
@@ -262,20 +483,22 @@ const PROVIDER_URLS = {
     "Crunchyroll": "https://www.crunchyroll.com",
     "Tubi TV": "https://tubitv.com",
     "Pluto TV": "https://pluto.tv",
-    "YouTube Premium": "https://www.youtube.com/premium"
+    "YouTube Premium": "https://www.youtube.com/premium",
+    "Vudu": "https://www.vudu.com",
+    "Vudu Plus": "https://www.vudu.com"
+
 };
 
-// Fetches 15 top streaming platforms and renders them as clickable links
+// Fetches 20 top streaming platforms and renders them as clickable links
 async function loadStreamingProviders() {
     const providersContainer = document.getElementById('providers-flex');
     if (!providersContainer) return;
 
     try {
-        const response = await fetch(`${BASE_URL}/watch/providers/movie?api_key=${TMDB_API_KEY}&watch_region=US`);
-        const data = await response.json();
+        const data = await fetchAndParse(`${BASE_URL}/watch/providers/movie?api_key=${TMDB_API_KEY}&watch_region=US`);
 
         // Expand view to top 15 streaming providers
-        const topProviders = (data.results || []).slice(0, 15);
+        const topProviders = (data.results || []).slice(0, 20).flat();
 
         if (topProviders.length === 0) {
             providersContainer.innerHTML = `<p class="error-msg">No providers currently loaded.</p>`;

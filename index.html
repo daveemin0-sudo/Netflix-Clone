@@ -55,6 +55,14 @@
                     More Info
                 </button>
             </div>
+
+            <!-- Dots for hero slideshow navigation -->
+            <div class="hero-right-controls">
+                <button id="mute-btn" class="mute-btn" title="Unmute">
+                    <!-- SVG icon will be managed by JavaScript -->
+                </button>
+                <div id="hero-nav-dots" class="hero-nav-dots"></div>
+            </div>
         </div>
     </header>
 
@@ -96,6 +104,17 @@
 
     </main>
 
+    <!-- Modal for Movie Details -->
+    <div id="movie-modal" class="modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <button id="modal-close-btn" class="modal-close-btn" title="Close">&times;</button>
+            <!-- Movie details will be injected here by JavaScript -->
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <script src="https://www.youtube.com/iframe_api"></script>
     <script src="script.js"></script>
 </body>
 </html>
