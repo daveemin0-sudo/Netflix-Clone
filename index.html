@@ -17,15 +17,18 @@
                 <li>TV Shows</li>
                 <li>Movies</li>
                 <li>New & Popular</li>
-                <li>My List</li>
+                <li><a href="watchlist.html">My List</a></li>
             </ul>
         </div>
         <div class="nav-right">
-            <button class="search-btn" title="Search">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-            </button>
+            <div id="search-container" class="search-container">
+                <button id="search-btn" class="search-btn" title="Search">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </button>
+                <input type="text" id="search-input" class="search-input" placeholder="Titles, genres...">
+            </div>
             <div class="profile-avatar"></div>
         </div>
     </nav>
@@ -69,6 +72,12 @@
     <!-- Carousel Rows Container -->
     <main class="main-content">
         
+        <!-- Container for search results -->
+        <section id="search-results-section" class="movie-row hidden">
+            <h3 id="search-results-title" class="row-title">Search Results</h3>
+            <div id="search-results-grid" class="watchlist-grid"></div>
+        </section>
+
         <section class="movie-row">
             <h3 class="row-title">Trending Now</h3>
             <div id="trending-row" class="row-posters scrollbar-hidden"></div>

@@ -82,10 +82,51 @@ html::-webkit-scrollbar, body::-webkit-scrollbar {
     color: var(--text-white);
 }
 
+.nav-links a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.nav-links li.active a,
+.nav-links li.active {
+    font-weight: bold;
+    color: var(--text-white);
+}
+
 .nav-right {
     display: flex;
     align-items: center;
     gap: 20px;
+}
+
+.search-container {
+    display: flex;
+    align-items: center;
+    background-color: transparent;
+    border: 1px solid transparent;
+    padding: 4px;
+    transition: all 0.3s ease;
+}
+
+.search-container.active {
+    background-color: rgba(0, 0, 0, 0.75);
+    border-color: var(--text-white);
+}
+
+.search-input {
+    background: none;
+    border: none;
+    color: var(--text-white);
+    width: 0;
+    padding: 0;
+    transition: width 0.3s ease, padding 0.3s ease;
+    outline: none;
+    font-size: 0.9rem;
+}
+
+.search-container.active .search-input {
+    width: 200px;
+    padding: 0 8px;
 }
 
 .search-btn {
@@ -566,6 +607,26 @@ html::-webkit-scrollbar, body::-webkit-scrollbar {
 .provider-name {
     font-size: 0.85rem;
     font-weight: 600;
+}
+
+/* --- Watchlist & Search Results Grid --- */
+.watchlist-main {
+    padding-top: 100px; /* Offset for fixed navbar */
+}
+
+.watchlist-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 15px;
+    padding: 10px 0;
+}
+
+.info-msg, .loading-msg {
+    color: var(--text-gray);
+    font-size: 1.1rem;
+    grid-column: 1 / -1; /* Span full width */
+    text-align: center;
+    padding: 40px 0;
 }
 
 /* --- Modal Styles --- */

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Watchlist - Cinematrix</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav id="navbar" class="navbar solid">
+        <div class="nav-left">
+            <a href="index.html" style="text-decoration: none;"><h1 class="logo">CINEMATRIX</h1></a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li>TV Shows</li>
+                <li>Movies</li>
+                <li>New & Popular</li>
+                <li class="active">My List</li>
+            </ul>
+        </div>
+        <div class="nav-right">
+            <div class="profile-avatar"></div>
+        </div>
+    </nav>
+
+    <!-- Main Content for Watchlist -->
+    <main class="main-content watchlist-main">
+        <section class="watchlist-grid-section">
+            <h2 class="row-title">My List</h2>
+            <div id="watchlist-grid" class="watchlist-grid">
+                <!-- Liked movies will be rendered here -->
+                <p class="loading-msg">Loading your list...</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal for Movie Details -->
+    <div id="movie-modal" class="modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <button id="modal-close-btn" class="modal-close-btn" title="Close">&times;</button>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <script src="watchlist.js"></script>
+</body>
+</html>

@@ -39,12 +39,12 @@ function toggleLike(movieId, buttonElement) {
 
     if (likedList.includes(idString)) {
         // Unlike action
-        likedList = likedList.filter(id => id !== idString);
+        likedList = likedList.filter(id => id !== idString);  // Remove from array
         if (labelSpan) labelSpan.innerText = "Like";
         buttonElement.classList.remove('liked');
     } else {
         // Like action
-        likedList.push(idString);
+        likedList.push(idString);  // Add to array
         if (labelSpan) labelSpan.innerText = "Liked";
         buttonElement.classList.add('liked');
     }
@@ -322,9 +322,10 @@ class HeroBanner {
  * Shuffles an array in place.
  * @param {Array} array The array to shuffle.  // eslint-disable-line
  */
+
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
+        const j = Math.floor(Math.random() * (i + 1)); 
         [array[i], array[j]] = [array[j], array[i]]; // Swap elements
     }
 }
@@ -356,7 +357,7 @@ function populateRow(elementId, moviesList) {
 
         if (likeButton) {
             // Prevent modal from opening when like is clicked
-            e.stopPropagation(); 
+            e.stopPropagation();  
             toggleLike(likeButton.dataset.movieId, likeButton);
         } else if (card) {
             openMovieModal(card.dataset.movieId, card.dataset.mediaType);
@@ -371,6 +372,56 @@ async function fetchAndParse(url) {
         throw new Error(`HTTP error! status: ${response.status}`);
     }
     return await response.json();
+}
+
+// --- Search Logic ---
+const searchContainer = document.getElementById('search-container');
+const searchBtn = document.getElementById('search-btn');
+const searchInput = document.getElementById('search-input');
+
+searchBtn.addEventListener('click', () => {
+    searchContainer.classList.toggle('active');
+    searchInput.focus();
+});
+
+searchInput.addEventListener('blur', () => {
+    if (searchInput.value === '') {
+        searchContainer.classList.remove('active');
+    }
+});
+
+searchInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && searchInput.value.trim() !== '') {
+        performSearch(searchInput.value.trim());
+    }
+});
+
+async function performSearch(query) {
+    const url = `${BASE_URL}/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}`;
+    const mainContent = document.querySelector('.main-content');
+    const searchSection = document.getElementById('search-results-section');
+    const searchGrid = document.getElementById('search-results-grid');
+    const searchTitle = document.getElementById('search-results-title');
+
+    try {
+        const data = await fetchAndParse(url);
+        const validResults = data.results.filter(item => (item.media_type === 'movie' || item.media_type === 'tv') && item.backdrop_path);
+
+        // Hide regular rows and show search results
+        mainContent.querySelectorAll('.movie-row:not(#search-results-section), .providers-section').forEach(el => el.style.display = 'none');
+        searchSection.style.display = 'block';
+        searchTitle.innerHTML = `Results for "${query}" <button class="clear-search-btn">Clear</button>`;
+        
+        searchGrid.innerHTML = validResults.length > 0
+            ? validResults.map(m => createMovieCard(m)).join('')
+            : `<p class="info-msg">No results found for "${query}".</p>`;
+
+        document.querySelector('.clear-search-btn').addEventListener('click', () => location.reload());
+
+    } catch (error) {
+        console.error("Search failed:", error);
+        searchGrid.innerHTML = `<p class="error-msg">Could not perform search. Please try again later.</p>`;
+    }
 }
 
 // Modal Logic
@@ -410,7 +461,7 @@ async function fetchMovieDetails(id, mediaType = 'movie') {
 
 // Renders movie details in the modal
 function populateModal(details) {
-    const backdropUrl = details.backdrop_path 
+    const backdropUrl = details.backdrop_path   
         ? `${IMAGE_BASE_URL}/original${details.backdrop_path}`
         : 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?q=80&w=1920';
 
@@ -482,7 +533,7 @@ async function loadContentFromTMDB() {
             fetchAndParse(urls.trending),
             fetchAndParse(urls.topRated),
             fetchAndParse(urls.popular),
-            fetchAndParse(urls.upcoming),
+            fetchAndParse(urls.upcoming), 
             fetchAndParse(urls.action)
         ]);
 
