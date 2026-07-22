@@ -428,6 +428,19 @@ async function performSearch(query) {
 
         document.querySelector('.clear-search-btn').addEventListener('click', () => location.reload());
 
+        // Add event listener for the newly created search results
+        searchGrid.addEventListener('click', (e) => {
+            const target = e.target;
+            const likeButton = target.closest('.btn-like');
+            const card = target.closest('.card');
+
+            if (likeButton) {
+                e.stopPropagation();
+                toggleLike(likeButton.dataset.movieId, likeButton);
+            } else if (card) {
+                openMovieModal(card.dataset.movieId, card.dataset.mediaType);
+            }
+        });
     } catch (error) {
         console.error("Search failed:", error);
         searchGrid.innerHTML = `<p class="error-msg">Could not perform search. Please try again later.</p>`;
