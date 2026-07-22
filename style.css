@@ -65,6 +65,28 @@ html::-webkit-scrollbar, body::-webkit-scrollbar {
     cursor: pointer;
 }
 
+.hamburger-btn {
+    display: none; /* Hidden on desktop */
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    z-index: 101; /* Above mobile menu */
+}
+
+.hamburger-btn span {
+    display: block;
+    width: 25px;
+    height: 3px;
+    background-color: var(--text-white);
+    margin: 5px 0;
+    transition: all 0.3s ease;
+}
+
+.nav-open .hamburger-btn span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+.nav-open .hamburger-btn span:nth-child(2) { opacity: 0; }
+.nav-open .hamburger-btn span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
 .nav-links {
     display: flex;
     list-style: none;
@@ -408,24 +430,53 @@ html::-webkit-scrollbar, body::-webkit-scrollbar {
 
 /* Responsive Rules */
 @media (max-width: 768px) {
-    .nav-links {
-        display: none; /* Hide top links on mobile */
+    .hamburger-btn {
+        display: block;
     }
+
+    .nav-links {
+        position: fixed;
+        top: 0;
+        left: -100%; /* Start off-screen */
+        width: 70%;
+        height: 100vh;
+        background-color: var(--bg-color);
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 30px;
+        transition: left 0.4s ease;
+        z-index: 100;
+    }
+
+    .nav-links.active {
+        left: 0; /* Slide in */
+    }
+
     .hero {
         height: 60vh;
     }
+
     .hero-title {
         font-size: 2.2rem;
     }
+
     .hero-desc {
         font-size: 0.9rem;
     }
-    .main-content {
-        margin-top: -60px;
+
+    .hero-buttons .btn {
+        padding: 8px 16px;
+        font-size: 0.9rem;
     }
+
     .card {
         min-width: 180px;
         height: 101px;
+    }
+
+    .modal-details {
+        flex-direction: column;
     }
 }
 

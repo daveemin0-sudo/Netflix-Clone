@@ -17,6 +17,16 @@ window.addEventListener('scroll', () => {
     }
 });
 
+// --- Mobile Navigation ---
+const hamburgerBtn = document.getElementById('hamburger-btn');
+const navLinks = document.querySelector('.nav-links');
+
+hamburgerBtn.addEventListener('click', () => {
+    navLinks.classList.toggle('active');
+    document.body.classList.toggle('nav-open');
+});
+
+
 // Fetch array of liked movie IDs from LocalStorage
 function getLikedMovies() {
     const saved = localStorage.getItem('cinematrix_liked');
