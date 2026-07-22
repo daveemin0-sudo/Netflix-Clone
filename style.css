@@ -28,6 +28,11 @@ html::-webkit-scrollbar, body::-webkit-scrollbar {
     display: none;
 }
 
+/* Utility class to prevent body scrolling when modal is open */
+.modal-open {
+    overflow: hidden;
+}
+
 /* Navbar Styles */
 .navbar {
     position: fixed;
@@ -593,8 +598,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar {
     max-height: 90vh;
     overflow-y: auto;
     animation: scaleUp 0.3s ease-out;
-    z-index: 1001;
-    /* Hide scrollbar for IE, Edge and Firefox */
+    z-index: 1001;    /* Hide scrollbar for IE, Edge and Firefox */
     -ms-overflow-style: none;
     scrollbar-width: none;
 }

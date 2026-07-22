@@ -317,9 +317,10 @@ class HeroBanner {
     }
 }
 
+
 /**
  * Shuffles an array in place.
- * @param {Array} array The array to shuffle.
+ * @param {Array} array The array to shuffle.  // eslint-disable-line
  */
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
@@ -364,7 +365,7 @@ function populateRow(elementId, moviesList) {
 }
 
 // Helper to fetch and parse JSON, centralizing error handling
-async function fetchAndParse(url) {
+async function fetchAndParse(url) {  
     const response = await fetch(url);
     if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -372,8 +373,7 @@ async function fetchAndParse(url) {
     return await response.json();
 }
 
-// --- Modal Logic ---
-
+// Modal Logic
 const modal = document.getElementById('movie-modal');
 const modalBody = document.getElementById('modal-body');
 const modalCloseBtn = document.getElementById('modal-close-btn');
@@ -383,6 +383,7 @@ async function openMovieModal(movieId, mediaType) {
         const details = await fetchMovieDetails(movieId, mediaType);
         populateModal(details);
         modal.classList.add('visible');
+        document.body.classList.add('modal-open');
     } catch (err) {
         console.error("Could not open modal:", err);
     }
@@ -390,6 +391,7 @@ async function openMovieModal(movieId, mediaType) {
 
 function closeModal() {
     modal.classList.remove('visible');
+    document.body.classList.remove('modal-open');
     modalBody.innerHTML = ''; // Clear content for next time
 }
 
@@ -406,6 +408,7 @@ async function fetchMovieDetails(id, mediaType = 'movie') {
     return await fetchAndParse(url);
 }
 
+// Renders movie details in the modal
 function populateModal(details) {
     const backdropUrl = details.backdrop_path 
         ? `${IMAGE_BASE_URL}/original${details.backdrop_path}`
@@ -451,7 +454,7 @@ function populateModal(details) {
     `;
 }
 
-// Close modal with the 'Escape' key
+// Close modal with the Escape key
 window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && modal.classList.contains('visible')) {
         closeModal();
