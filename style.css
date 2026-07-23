@@ -326,7 +326,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar {
     display: flex;
     gap: 15px;
     overflow-x: scroll;
-    padding: 10px 0;
+    padding: 25px 0; /* Add vertical padding to prevent jitter on card scale */
 }
 
 /* Hide Scrollbar */
@@ -360,11 +360,6 @@ html::-webkit-scrollbar, body::-webkit-scrollbar {
     box-shadow: 0 8px 24px rgba(0,0,0,0.7);
     /* Delay the z-index change to prevent flickering with adjacent cards */
     transition: transform 0.3s ease, box-shadow 0.3s ease, z-index 0s 0s;
-}
-
-/* Prevent adjacent cards from also transforming when a neighbor is hovered */
-.row-posters:hover .card:not(:hover) {
-    transform: scale(1);
 }
 
 .card-img {

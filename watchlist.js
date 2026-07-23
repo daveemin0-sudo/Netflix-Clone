@@ -1,9 +1,9 @@
-// --- Configuration ---
+// Configuration
 const TMDB_API_KEY = 'd51abdfc02fc1c571b0d8b7c1e0495a8';
 const BASE_URL = 'https://api.themoviedb.org/3';
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p';
 
-// --- LocalStorage Helpers (Shared Logic) ---
+// LocalStorage Helpers (Shared Logic)
 function getLikedMovies() {
     const saved = localStorage.getItem('cinematrix_liked');
     return saved ? JSON.parse(saved) : [];
