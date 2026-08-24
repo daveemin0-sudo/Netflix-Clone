@@ -152,11 +152,27 @@ export default function Navbar({ onSearch, searchTerm, setSearchTerm }) {
             <span className="absolute -top-1 -right-1 w-2 h-2 bg-[#E50914] rounded-full ring-2 ring-black" />
           </button>
 
-          {/* Profile Avatar */}
+          {/* Profile Avatar (Classic Netflix Smiley) */}
           <div className="flex items-center gap-2 cursor-pointer group">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#E50914] via-[#7928ca] to-[#0070f3] p-[1.5px] transition-transform group-hover:scale-105 shadow-md">
-              <div className="w-full h-full bg-[#181818] rounded-[6px] flex items-center justify-center font-bold text-xs text-white">
-                C
+            <div className="w-8 h-8 rounded-md overflow-hidden transition-transform group-hover:scale-105 shadow-md ring-1 ring-white/10 group-hover:ring-white/40">
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/0/0b/Netflix-avatar.png"
+                alt="Netflix Profile"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                  e.currentTarget.nextElementSibling.style.display = 'flex';
+                }}
+                className="w-full h-full object-cover"
+              />
+              <div
+                style={{ display: 'none' }}
+                className="w-full h-full bg-[#0071eb] items-center justify-center text-white"
+              >
+                <svg viewBox="0 0 32 32" className="w-5 h-5 fill-white">
+                  <circle cx="11" cy="12" r="2.5" />
+                  <circle cx="21" cy="12" r="2.5" />
+                  <path d="M9 19c2 3.5 12 3.5 14 0" stroke="white" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+                </svg>
               </div>
             </div>
             <svg
