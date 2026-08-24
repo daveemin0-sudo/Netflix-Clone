@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import HeroBanner from '../components/HeroBanner';
 import MovieRow from '../components/MovieRow';
@@ -30,7 +30,6 @@ export default function Home({ likedList, toggleLike, isLiked }) {
   const [popular, setPopular] = useState([]);
   const [upcoming, setUpcoming] = useState([]);
   const [actionMovies, setActionMovies] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   // Search state
   const [searchTerm, setSearchTerm] = useState('');
@@ -43,7 +42,6 @@ export default function Home({ likedList, toggleLike, isLiked }) {
 
   useEffect(() => {
     let isMounted = true;
-    setLoading(true);
 
     Promise.all([
       fetchTrendingAll(),
@@ -66,11 +64,9 @@ export default function Home({ likedList, toggleLike, isLiked }) {
           const shuffled = shuffle(trendingList);
           setHeroMovies(shuffled.slice(0, 7));
         }
-        setLoading(false);
       })
       .catch((err) => {
         console.error('Failed to load categories:', err);
-        if (isMounted) setLoading(false);
       });
 
     return () => {
@@ -113,7 +109,7 @@ export default function Home({ likedList, toggleLike, isLiked }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#0b0b0b] text-white flex flex-col justify-between">
+    <div className="min-h-screen bg-brand-bg text-white flex flex-col justify-between">
       <div>
         <Navbar
           onSearch={handleSearch}

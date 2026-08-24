@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import MovieCard from '../components/MovieCard';
@@ -49,7 +49,7 @@ export default function Watchlist({ likedList, toggleLike, isLiked }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#0b0b0b] text-white flex flex-col justify-between">
+    <div className="min-h-screen bg-brand-bg text-white flex flex-col justify-between">
       <div>
         <Navbar />
 
@@ -57,7 +57,7 @@ export default function Watchlist({ likedList, toggleLike, isLiked }) {
           {/* Header section */}
           <div className="flex items-end justify-between border-b border-white/10 pb-5 mb-8">
             <div>
-              <div className="inline-block text-[11px] font-bold uppercase tracking-widest text-[#E50914] mb-1">
+              <div className="inline-block text-[11px] font-bold uppercase tracking-widest text-brand-red mb-1">
                 Personal Collection
               </div>
               <h1 className="text-3xl sm:text-4xl font-black tracking-tight">
@@ -66,7 +66,7 @@ export default function Watchlist({ likedList, toggleLike, isLiked }) {
             </div>
 
             <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-3.5 py-1.5 rounded-full text-xs font-semibold text-gray-300">
-              <span className="w-2 h-2 rounded-full bg-[#46D369]" />
+              <span className="w-2 h-2 rounded-full bg-brand-rating" />
               <span>
                 {likedList.length} {likedList.length === 1 ? 'saved title' : 'saved titles'}
               </span>
@@ -75,7 +75,7 @@ export default function Watchlist({ likedList, toggleLike, isLiked }) {
 
           {loading ? (
             <div className="flex flex-col items-center justify-center py-28 gap-4">
-              <div className="w-12 h-12 border-4 border-[#E50914] border-t-transparent rounded-full animate-spin"></div>
+              <div className="w-12 h-12 border-4 border-brand-red border-t-transparent rounded-full animate-spin"></div>
               <p className="text-gray-400 font-medium">Loading your collection...</p>
             </div>
           ) : movies.length > 0 ? (
@@ -92,7 +92,7 @@ export default function Watchlist({ likedList, toggleLike, isLiked }) {
             </div>
           ) : (
             <div className="text-center py-28 max-w-md mx-auto">
-              <div className="w-20 h-20 mx-auto mb-6 rounded-3xl bg-gradient-to-tr from-[#E50914]/20 to-transparent border border-white/10 flex items-center justify-center text-3xl shadow-xl">
+              <div className="w-20 h-20 mx-auto mb-6 rounded-3xl bg-linear-to-tr from-brand-red/20 to-transparent border border-white/10 flex items-center justify-center text-3xl shadow-xl">
                 🎬
               </div>
               <h3 className="text-xl sm:text-2xl font-black mb-2 tracking-tight">
@@ -103,7 +103,7 @@ export default function Watchlist({ likedList, toggleLike, isLiked }) {
               </p>
               <Link
                 to="/"
-                className="inline-flex items-center gap-2 bg-[#E50914] hover:bg-[#b80710] text-white px-7 py-3 rounded-lg font-bold text-sm transition-all shadow-lg hover:shadow-red-600/30 hover:scale-105 active:scale-95"
+                className="inline-flex items-center gap-2 bg-brand-red hover:bg-brand-red-hover text-white px-7 py-3 rounded-lg font-bold text-sm transition-all shadow-lg hover:shadow-red-600/30 hover:scale-105 active:scale-95"
               >
                 <span>Browse Spotlight</span>
                 <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

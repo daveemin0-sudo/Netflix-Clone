@@ -1,3 +1,10 @@
 {
-    "liveServer.settings.port": 5502
+    "liveServer.settings.port": 5502,
+    "cSpell.words": [
+        "CINEMATRIX",
+        "TMDB",
+        "Watchlist"
+    ],
+    "css.lint.unknownAtRules": "ignore",
+    "scss.lint.unknownAtRules": "ignore"
 }

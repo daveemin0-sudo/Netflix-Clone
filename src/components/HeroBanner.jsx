@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { IMAGE_BASE_URL, fetchMovieVideo } from '../api/tmdb';
 
 export default function HeroBanner({ movies = [], onOpenModal }) {
@@ -97,9 +97,9 @@ export default function HeroBanner({ movies = [], onOpenModal }) {
 
   if (!currentMovie) {
     return (
-      <div className="relative h-[70vh] md:h-[80vh] w-full flex items-center justify-center bg-[#0b0b0b]">
+      <div className="relative h-[70vh] md:h-[80vh] w-full flex items-center justify-center bg-brand-bg">
         <div className="animate-pulse flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-[#E50914] border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-12 h-12 border-4 border-brand-red border-t-transparent rounded-full animate-spin"></div>
           <p className="text-gray-400 font-medium tracking-wide">Loading Spotlight...</p>
         </div>
       </div>
@@ -131,22 +131,22 @@ export default function HeroBanner({ movies = [], onOpenModal }) {
               isMuted ? 1 : 0
             }&controls=0&loop=1&playlist=${trailerKey}&rel=0&showinfo=0&modestbranding=1&enablejsapi=1`}
             title="Trailer Preview"
-            className="w-[100vw] h-[56.25vw] min-h-[100vh] min-w-[177.77vh] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+            className="w-screen h-[56.25vw] min-h-screen min-w-[177.77vh] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
             allow="autoplay; encrypted-media"
           />
         </div>
       )}
 
       {/* Multi-layered Cinematic Gradients */}
-      <div className="absolute inset-0 z-15 bg-gradient-to-t from-[#0b0b0b] via-[#0b0b0b]/45 to-transparent" />
-      <div className="absolute inset-0 z-15 bg-gradient-to-r from-[#0b0b0b]/90 via-[#0b0b0b]/60 to-transparent w-full md:w-3/4" />
-      <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-black/80 to-transparent z-15" />
+      <div className="absolute inset-0 z-15 bg-linear-to-t from-brand-bg via-brand-bg/45 to-transparent" />
+      <div className="absolute inset-0 z-15 bg-linear-to-r from-brand-bg/90 via-brand-bg/60 to-transparent w-full md:w-3/4" />
+      <div className="absolute top-0 left-0 right-0 h-32 bg-linear-to-b from-black/80 to-transparent z-15" />
 
       {/* Hero Content */}
       <div className="relative z-20 max-w-2xl pt-20 sm:pt-24">
         {/* Spotlight Tag / Badge */}
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-600/20 border border-red-500/40 text-red-400 text-xs font-bold tracking-wider uppercase mb-4 backdrop-blur-md">
-          <span className="w-2 h-2 rounded-full bg-[#E50914] animate-ping" />
+          <span className="w-2 h-2 rounded-full bg-brand-red animate-ping" />
           <span>Trending Spotlight #{currentIndex + 1}</span>
         </div>
 
@@ -157,7 +157,7 @@ export default function HeroBanner({ movies = [], onOpenModal }) {
 
         {/* Metadata Badges */}
         <div className="flex items-center gap-3 text-xs sm:text-sm font-semibold text-gray-300 mb-4">
-          <span className="text-[#46D369] font-bold">★ {rating} Rating</span>
+          <span className="text-brand-rating font-bold">★ {rating} Rating</span>
           <span className="text-gray-500">•</span>
           <span>{releaseYear}</span>
           <span className="text-gray-500">•</span>

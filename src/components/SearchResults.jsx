@@ -1,4 +1,3 @@
-import React from 'react';
 import MovieCard from './MovieCard';
 
 export default function SearchResults({
@@ -14,7 +13,7 @@ export default function SearchResults({
     <section className="pt-24 pb-16 px-4 sm:px-8 md:px-12 min-h-[70vh]">
       <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-8">
         <h2 className="text-xl sm:text-2xl font-bold text-white">
-          Results for <span className="text-[#E50914]">"{query}"</span>
+          Results for <span className="text-brand-red">&ldquo;{query}&rdquo;</span>
         </h2>
         <button
           onClick={onClear}
@@ -26,7 +25,7 @@ export default function SearchResults({
 
       {loading ? (
         <div className="flex flex-col items-center justify-center py-20 gap-4">
-          <div className="w-10 h-10 border-4 border-[#E50914] border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-10 h-10 border-4 border-brand-red border-t-transparent rounded-full animate-spin"></div>
           <p className="text-gray-400 font-medium">Searching Cinematrix...</p>
         </div>
       ) : results.length > 0 ? (
@@ -43,7 +42,9 @@ export default function SearchResults({
         </div>
       ) : (
         <div className="text-center py-24 text-gray-400">
-          <p className="text-lg mb-2">No matches found for "{query}".</p>
+          <p className="text-lg mb-2">
+            No matches found for &ldquo;{query}&rdquo;.
+          </p>
           <p className="text-sm text-gray-500">
             Try searching for another title, director, actor, or genre.
           </p>

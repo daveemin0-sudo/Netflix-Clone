@@ -1,4 +1,3 @@
-import React from 'react';
 import { IMAGE_BASE_URL } from '../api/tmdb';
 
 export default function MovieCard({ movie, rank, isLiked, onToggleLike, onOpenModal }) {
@@ -18,7 +17,7 @@ export default function MovieCard({ movie, rank, isLiked, onToggleLike, onOpenMo
   return (
     <div
       onClick={() => onOpenModal && onOpenModal(movie.id, movie.media_type || (movie.title ? 'movie' : 'tv'))}
-      className="group relative flex-shrink-0 w-[112px] sm:w-[165px] md:w-[210px] lg:w-[255px] h-[64px] sm:h-[95px] md:h-[120px] lg:h-[145px] bg-[#141414] rounded-md sm:rounded-lg overflow-hidden cursor-pointer shadow-md sm:shadow-xl transition-all duration-300 ease-out hover:scale-110 sm:hover:scale-118 hover:z-30 hover:shadow-2xl hover:shadow-black/90 hover:ring-1 hover:ring-white/30"
+      className="group relative shrink-0 w-28 h-14 sm:w-48 sm:h-32 md:w-64 md:h-40 lg:w-80 lg:h-48 bg-brand-card rounded-md sm:rounded-lg overflow-hidden cursor-pointer shadow-md sm:shadow-xl transition-all duration-300 ease-out hover:scale-110 sm:hover:scale-118 hover:z-30 hover:shadow-2xl hover:shadow-black/90 hover:ring-1 hover:ring-white/30"
     >
       {/* Background Poster */}
       <img
@@ -33,7 +32,7 @@ export default function MovieCard({ movie, rank, isLiked, onToggleLike, onOpenMo
 
       {/* Rank Number for Top 10 */}
       {rank && (
-        <div className="absolute top-1 left-1 sm:top-2 sm:left-2 z-10 px-1 sm:px-2 py-0.2 sm:py-0.5 bg-[#E50914] text-white font-black text-[8px] sm:text-[10px] md:text-xs rounded shadow-md tracking-wider">
+        <div className="absolute top-1 left-1 sm:top-2 sm:left-2 z-10 px-1 sm:px-2 py-0.5 bg-brand-red text-white font-black text-[8px] sm:text-[10px] md:text-xs rounded shadow-md tracking-wider">
           #{rank}
         </div>
       )}
@@ -45,7 +44,7 @@ export default function MovieCard({ movie, rank, isLiked, onToggleLike, onOpenMo
           if (onToggleLike) onToggleLike(movie.id);
         }}
         className={`sm:hidden absolute top-1 right-1 z-10 w-5 h-5 rounded-full flex items-center justify-center backdrop-blur-md transition-all ${
-          isLiked ? 'bg-[#E50914] text-white' : 'bg-black/60 text-white/80'
+          isLiked ? 'bg-brand-red text-white' : 'bg-black/60 text-white/80'
         }`}
         aria-label={isLiked ? 'Remove from list' : 'Add to list'}
       >
@@ -65,7 +64,7 @@ export default function MovieCard({ movie, rank, isLiked, onToggleLike, onOpenMo
       </button>
 
       {/* Hover Info Glass Overlay (Hidden on pure small touch screens until hovered/expanded) */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden sm:flex flex-col justify-end p-2 sm:p-3 select-none backdrop-blur-[2px]">
+      <div className="absolute inset-0 bg-linear-to-t from-black via-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden sm:flex flex-col justify-end p-2 sm:p-3 select-none backdrop-blur-xs">
         {/* Title */}
         <h4 className="text-[10px] sm:text-xs md:text-sm font-extrabold text-white truncate drop-shadow mb-0.5 sm:mb-1">
           {movieTitle}
@@ -79,10 +78,10 @@ export default function MovieCard({ movie, rank, isLiked, onToggleLike, onOpenMo
         {/* Metadata Row */}
         <div className="flex items-center justify-between text-[9px] sm:text-[10px] md:text-[11px] font-semibold mb-1.5 sm:mb-2">
           <div className="flex items-center gap-1.5">
-            <span className="text-[#46D369] font-bold">{matchPercent}%</span>
+            <span className="text-brand-rating font-bold">{matchPercent}%</span>
             <span className="text-gray-400 font-normal">{releaseYear}</span>
           </div>
-          <span className="px-1 py-0.2 rounded border border-white/30 text-[8px] sm:text-[9px] font-bold text-gray-200">
+          <span className="px-1 py-0.5 rounded border border-white/30 text-[8px] sm:text-[9px] font-bold text-gray-200">
             HD
           </span>
         </div>
@@ -97,7 +96,7 @@ export default function MovieCard({ movie, rank, isLiked, onToggleLike, onOpenMo
             }}
             className={`flex-1 flex items-center justify-center gap-1 py-1 sm:py-1.5 rounded text-[10px] sm:text-xs font-semibold border transition-all cursor-pointer shadow ${
               isLiked
-                ? 'bg-[#E50914] border-[#E50914] text-white shadow-red-900/40'
+                ? 'bg-brand-red border-brand-red text-white shadow-red-900/40'
                 : 'bg-white/15 border-white/25 text-white hover:bg-white/30 hover:border-white/50'
             }`}
           >

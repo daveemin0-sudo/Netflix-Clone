@@ -20,7 +20,7 @@ export const PROVIDER_URLS = {
   "YouTube Premium": "https://www.youtube.com/premium",
   "Vudu": "https://www.vudu.com",
   "Vudu Plus": "https://www.vudu.com"
-};
+};                                                         
 
 export async function fetchAndParse(url) {
   const response = await fetch(url);

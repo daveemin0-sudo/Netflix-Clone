@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { IMAGE_BASE_URL, fetchMovieDetails } from '../api/tmdb';
 
 export default function MovieModal({ movieId, mediaType = 'movie', isOpen, onClose, isLiked, onToggleLike }) {
@@ -81,7 +81,7 @@ export default function MovieModal({ movieId, mediaType = 'movie', isOpen, onClo
       {/* Modal Card */}
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-4xl max-h-[92vh] bg-[#121212] rounded-2xl overflow-y-auto no-scrollbar shadow-2xl border border-white/10 animate-scaleUp text-white"
+        className="relative w-full max-w-4xl max-h-[92vh] bg-brand-surface rounded-2xl overflow-y-auto no-scrollbar shadow-2xl border border-white/10 animate-scaleUp text-white"
       >
         {/* Close Button */}
         <button
@@ -93,19 +93,19 @@ export default function MovieModal({ movieId, mediaType = 'movie', isOpen, onClo
         </button>
 
         {loading ? (
-          <div className="h-[480px] flex flex-col items-center justify-center gap-4">
-            <div className="w-12 h-12 border-4 border-[#E50914] border-t-transparent rounded-full animate-spin"></div>
+          <div className="h-120 flex flex-col items-center justify-center gap-4">
+            <div className="w-12 h-12 border-4 border-brand-red border-t-transparent rounded-full animate-spin"></div>
             <p className="text-gray-400 font-medium tracking-wide">Loading cinematic details...</p>
           </div>
         ) : details ? (
           <>
             {/* Header Backdrop */}
             <div
-              className="relative h-72 sm:h-96 md:h-[460px] w-full bg-cover bg-center"
+              className="relative h-72 sm:h-96 md:h-115 w-full bg-cover bg-center"
               style={{ backgroundImage: `url('${backdropUrl}')` }}
             >
-              <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-[#121212]/50 to-transparent" />
-              <div className="absolute inset-0 bg-gradient-to-r from-[#121212]/80 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-linear-to-t from-brand-surface via-brand-surface/50 to-transparent" />
+              <div className="absolute inset-0 bg-linear-to-r from-brand-surface/80 via-transparent to-transparent" />
 
               <div className="absolute bottom-6 left-6 sm:left-10 right-6 z-10">
                 <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-white drop-shadow-2xl mb-4 leading-tight">
@@ -118,7 +118,7 @@ export default function MovieModal({ movieId, mediaType = 'movie', isOpen, onClo
                       onClick={() => onToggleLike(details.id)}
                       className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold text-sm border transition-all cursor-pointer shadow-lg active:scale-95 ${
                         isLiked
-                          ? 'bg-[#E50914] border-[#E50914] text-white shadow-red-900/50'
+                          ? 'bg-brand-red border-brand-red text-white shadow-red-900/50'
                           : 'bg-white/20 hover:bg-white/30 border-white/30 text-white backdrop-blur-md'
                       }`}
                     >
@@ -162,7 +162,7 @@ export default function MovieModal({ movieId, mediaType = 'movie', isOpen, onClo
               <div className="md:col-span-2 space-y-5">
                 {/* Meta stats bar */}
                 <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm font-semibold">
-                  <span className="text-[#46D369] font-bold">{matchPercent}% Match</span>
+                  <span className="text-brand-rating font-bold">{matchPercent}% Match</span>
                   <span className="text-gray-400">{releaseYear}</span>
                   {runtime && (
                     <>
@@ -183,8 +183,8 @@ export default function MovieModal({ movieId, mediaType = 'movie', isOpen, onClo
                 </p>
 
                 {details.tagline && (
-                  <p className="text-xs sm:text-sm italic text-gray-400 border-l-2 border-[#E50914] pl-3 py-1">
-                    "{details.tagline}"
+                  <p className="text-xs sm:text-sm italic text-gray-400 border-l-2 border-brand-red pl-3 py-1">
+                    &ldquo;{details.tagline}&rdquo;
                   </p>
                 )}
 
@@ -221,7 +221,7 @@ export default function MovieModal({ movieId, mediaType = 'movie', isOpen, onClo
                 <div>
                   <span className="text-gray-500 font-semibold block mb-1">Rating</span>
                   <div className="flex items-center gap-2">
-                    <span className="text-[#46D369] font-extrabold text-base">★ {ratingNum.toFixed(1)}</span>
+                    <span className="text-brand-rating font-extrabold text-base">★ {ratingNum.toFixed(1)}</span>
                     <span className="text-gray-500 text-xs">({details.vote_count || 0} reviews)</span>
                   </div>
                 </div>

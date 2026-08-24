@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 export default function Navbar({ onSearch, searchTerm, setSearchTerm }) {
@@ -34,8 +34,8 @@ export default function Navbar({ onSearch, searchTerm, setSearchTerm }) {
     <nav
       className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 px-4 sm:px-8 md:px-12 py-3.5 ${
         isScrolled
-          ? 'bg-[#0b0b0b]/85 backdrop-blur-xl border-b border-white/10 shadow-2xl shadow-black/80 py-3'
-          : 'bg-gradient-to-b from-black/95 via-black/50 to-transparent'
+          ? 'bg-brand-bg/85 backdrop-blur-xl border-b border-white/10 shadow-2xl shadow-black/80 py-3'
+          : 'bg-linear-to-b from-black/95 via-black/50 to-transparent'
       }`}
     >
       <div className="flex items-center justify-between max-w-7xl mx-auto">
@@ -45,7 +45,7 @@ export default function Navbar({ onSearch, searchTerm, setSearchTerm }) {
             to="/"
             className="group flex items-center gap-1.5 focus:outline-none"
           >
-            <span className="text-[#E50914] font-black text-2xl sm:text-3xl tracking-tighter bg-gradient-to-r from-[#E50914] via-[#ff2a34] to-[#E50914] bg-clip-text text-transparent group-hover:brightness-125 transition-all">
+            <span className="text-brand-red font-black text-2xl sm:text-3xl tracking-tighter bg-linear-to-r from-brand-red via-[#ff2a34] to-brand-red bg-clip-text group-hover:brightness-125 transition-all">
               CINEMATRIX
             </span>
           </Link>
@@ -65,7 +65,7 @@ export default function Navbar({ onSearch, searchTerm, setSearchTerm }) {
                   >
                     {link.label}
                     {location.pathname === link.path && (!searchTerm || link.path === '/watchlist') && (
-                      <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[#E50914] rounded-full shadow-[0_0_8px_#E50914]" />
+                      <span className="absolute bottom-0 left-0 w-full h-0.5 bg-brand-red rounded-full shadow-[0_0_8px_#E50914]" />
                     )}
                   </Link>
                 ) : (
@@ -122,7 +122,7 @@ export default function Navbar({ onSearch, searchTerm, setSearchTerm }) {
               onBlur={() => {
                 if (!searchTerm) setIsSearchActive(false);
               }}
-              className={`bg-transparent text-xs sm:text-sm text-white placeholder-gray-400 focus:outline-none transition-all duration-300 font-normal ${
+              className={`bg-transparent text-xs sm:text-sm text-white focus:outline-none transition-all duration-300 font-normal ${
                 isSearchActive || (searchTerm && searchTerm.length > 0)
                   ? 'w-40 sm:w-60 px-2'
                   : 'w-0 px-0'
@@ -149,7 +149,7 @@ export default function Navbar({ onSearch, searchTerm, setSearchTerm }) {
                 d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
               />
             </svg>
-            <span className="absolute -top-1 -right-1 w-2 h-2 bg-[#E50914] rounded-full ring-2 ring-black" />
+            <span className="absolute -top-1 -right-1 w-2 h-2 bg-brand-red rounded-full ring-2 ring-black" />
           </button>
 
           {/* Profile Avatar (Classic Netflix Smiley) */}
@@ -189,7 +189,7 @@ export default function Navbar({ onSearch, searchTerm, setSearchTerm }) {
           {/* Mobile Hamburger Toggle */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden flex flex-col justify-center items-center gap-1.5 p-1 text-white focus:outline-none"
+            className="md:hidden flex flex-col justify-center items-center gap-1.5 p-1 text-white focus:outline-none cursor-pointer"
             aria-label="Toggle navigation menu"
           >
             <span
@@ -213,18 +213,18 @@ export default function Navbar({ onSearch, searchTerm, setSearchTerm }) {
 
       {/* Mobile Drawer */}
       <div
-        className={`fixed inset-0 top-[57px] bg-[#0b0b0b]/95 backdrop-blur-2xl flex flex-col items-center justify-center gap-7 text-base font-semibold transition-all duration-300 md:hidden z-40 border-t border-white/10 ${
+        className={`fixed inset-0 top-14 bg-brand-bg/95 backdrop-blur-2xl flex flex-col items-start justify-start px-8 pt-8 pb-12 gap-6 text-base font-semibold transition-all duration-300 md:hidden z-40 border-t border-white/10 ${
           isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
       >
         {navLinks.map((link, idx) => (
-          <div key={idx}>
+          <div key={idx} className="w-full">
             {link.isRoute ? (
               <Link
                 to={link.path}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`transition-colors ${
-                  location.pathname === link.path ? 'text-[#E50914]' : 'text-white hover:text-[#E50914]'
+                className={`block w-full py-1 text-left transition-colors ${
+                  location.pathname === link.path ? 'text-brand-red font-bold' : 'text-gray-200 hover:text-brand-red'
                 }`}
               >
                 {link.label}
@@ -235,7 +235,7 @@ export default function Navbar({ onSearch, searchTerm, setSearchTerm }) {
                   setIsMobileMenuOpen(false);
                   if (link.action) link.action();
                 }}
-                className="text-white hover:text-[#E50914] transition-colors"
+                className="block w-full py-1 text-left text-gray-200 hover:text-brand-red transition-colors cursor-pointer"
               >
                 {link.label}
               </button>
