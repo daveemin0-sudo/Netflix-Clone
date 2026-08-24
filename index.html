@@ -1,134 +1,16 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cinematrix Kingle</title>
-    <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-
-    <!-- Navigation Bar -->
-    <nav id="navbar" class="navbar">
-        <div class="nav-left">
-            <h1 class="logo">CINEMATRIX</h1>
-            <button id="hamburger-btn" class="hamburger-btn" title="Menu" aria-label="Toggle navigation menu">
-                <span aria-hidden="true"></span>
-                <span aria-hidden="true"></span>
-                <span aria-hidden="true"></span>
-            </button>
-            <ul class="nav-links">
-                <li>Home</li>
-                <li>TV Shows</li>
-                <li>Movies</li>
-                <li>New & Popular</li>
-                <li><a href="watchlist.html">My List</a></li>
-            </ul>
-        </div>
-        <div class="nav-right">
-            <div id="search-container" class="search-container">
-                <button id="search-btn" class="search-btn" title="Search">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                </button>
-                <input type="text" id="search-input" class="search-input" placeholder="Titles, genres...">
-            </div>
-            <div class="profile-avatar"></div>
-        </div>
-    </nav>
-
-   <!-- Hero Spotlight Banner -->
-    <header id="hero-banner" class="hero">
-        <!-- New video overlay container -->
-        <div id="hero-video-container" class="hero-video-container"></div>
-
-        <div class="hero-content">
-            <h2 id="hero-title" class="hero-title">Loading Spotlight...</h2>
-            <p id="hero-desc" class="hero-desc">Fetching the latest cinematic selections...</p>
-            <div class="hero-buttons">
-
-                <!-- Added id="play-btn" to listen for clicks -->
-                <button id="play-btn" class="btn btn-play">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="btn-icon" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
-                    </svg>
-                    Play Trailer
-                </button>
-
-                <button class="btn btn-info">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="btn-icon-outline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    More Info
-                </button>
-            </div>
-
-            <!-- Dots for hero slideshow navigation -->
-            <div class="hero-right-controls">
-                <button id="mute-btn" class="mute-btn" title="Unmute">
-                    <!-- SVG icon will be managed by JavaScript -->
-                </button>
-                <div id="hero-nav-dots" class="hero-nav-dots"></div>
-            </div>
-        </div>
-    </header>
-
-    <!-- Carousel Rows Container -->
-    <main class="main-content">
-        
-        <!-- Container for search results -->
-        <section id="search-results-section" class="movie-row hidden">
-            <h3 id="search-results-title" class="row-title">Search Results</h3>
-            <div id="search-results-grid" class="watchlist-grid"></div>
-        </section>
-
-        <section class="movie-row">
-            <h3 class="row-title">Trending Now</h3>
-            <div id="trending-row" class="row-posters scrollbar-hidden"></div>
-        </section>
-
-        <section class="movie-row">
-            <h3 class="row-title">Top Rated</h3>
-            <div id="top-rated-row" class="row-posters scrollbar-hidden"></div>
-        </section>
-
-        <section class="movie-row">
-            <h3 class="row-title">Popular on Cinematrix</h3>
-            <div id="popular-row" class="row-posters scrollbar-hidden"></div>
-        </section>
-
-        <section class="movie-row">
-            <h3 class="row-title">Upcoming Releases</h3>
-            <div id="upcoming-row" class="row-posters scrollbar-hidden"></div>
-        </section>
-
-        <section class="movie-row">
-            <h3 class="row-title">Action Thrillers</h3>
-            <div id="action-row" class="row-posters scrollbar-hidden"></div>
-        </section>
-
-        <!-- Dedicated Streaming Providers Row -->
-        <section class="providers-section">
-            <h3 class="row-title">Watch Across Streaming Networks</h3>
-            <div id="providers-flex" class="providers-flex">
-                <!-- Streaming platform logos will render here dynamically -->
-            </div>
-        </section>
-
-    </main>
-
-    <!-- Modal for Movie Details -->
-    <div id="movie-modal" class="modal">
-        <div class="modal-overlay"></div>
-        <div class="modal-content">
-            <button id="modal-close-btn" class="modal-close-btn" title="Close">&times;</button>
-            <!-- Movie details will be injected here by JavaScript -->
-            <div id="modal-body"></div>
-        </div>
-    </div>
-
-    <script src="https://www.youtube.com/iframe_api"></script>
-    <script src="script.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎬</text></svg>" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cinematrix — Stream Movies & TV Shows</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  </head>
+  <body class="bg-[#0b0b0b] text-white selection:bg-[#E50914] selection:text-white font-['Plus_Jakarta_Sans',sans-serif] antialiased">
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>
